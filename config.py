@@ -7,21 +7,21 @@ class Config:
     """
 
     def __init__(self):
-        with open("config.json") as json_file:
-            json_data = json.load(json_file)
+        with open("config.json") as jsonFile:
+            jsonData = json.load(jsonFile)
 
-        self.__set_data(json_data)
-        self._set_ManageData(json_data)
+        self.__setData(jsonData)
+        self.__setManageData(jsonData)
 
     def __str__(self):
         return str(self.__dict__)
 
-    def __set_data(self, json_data):
+    def __setData(self, jsonData):
         # websocket配置信息
-        self.Websocket = "{0}/?access_token={1}".format(
-            json_data["websocket"], json_data["token"]
+        self.websocket = "{0}/?access_token={1}".format(
+            jsonData["websocket"], jsonData["token"]
         )
 
-    def _set_ManageData(self, json_data):
+    def __setManageData(self, jsonData):
         # Uvicorn配置信息
-        self.UvicornPort = json_data["ManagePort"]
+        self.uvicornPort = jsonData["ManagePort"]

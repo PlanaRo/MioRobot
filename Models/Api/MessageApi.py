@@ -76,27 +76,27 @@ class MessageApi:
                 Log.error("发送的消息不符合规范")
         else:
             # 转发消息的构建
-            messagechains = []
-            messagedata = {
+            messageChains = []
+            messageData = {
                 "type": "node",
                 "data": {"content": ""},
             }
             # 判断message是否为字符串
             if isinstance(message, (str, int, float, bool)):
-                messagedata["data"]["content"] = message
-                messagechains.append(messagedata)
+                messageData["data"]["content"] = message
+                messageChains.append(messageData)
                 # 构建消息
-                param = {"message": messagechains, "group_id": MessageData.Group}
+                param = {"message": messageChains, "group_id": MessageData.Group}
                 args = RequestApi(api, param)
                 return await ApiAdapter.sendActionApi(websocket, args, 5)
             # 判断message是否为列表
             elif all(isinstance(item, (str, int, float)) for item in message):
 
                 for item in message:
-                    messagedata["data"]["content"] = item
-                    messagechains.append(messagedata)
+                    messageData["data"]["content"] = item
+                    messageChains.append(messageData)
                 # 构建消息
-                param = {"message": messagechains, "group_id": MessageData.Group}
+                param = {"message": messageChains, "group_id": MessageData.Group}
                 args = RequestApi(api, param)
                 return await ApiAdapter.sendActionApi(websocket, args, 5)
 

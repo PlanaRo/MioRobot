@@ -9,21 +9,6 @@ import time
 import websockets
 
 
-class Plugin_trigger:
-    """
-    标记插件的触发
-    """
-
-    callbackName: str
-    runtime: list[float] = []
-
-    def __init__(self, callbackName:str):
-        self.callbackName = callbackName
-
-    def run(self):
-        self.runtime.append(time.time())
-
-
 class PluginLoader:
     """
     插件加载器
@@ -32,7 +17,7 @@ class PluginLoader:
     # 单例模式
     _instance = None
     # 插件路径
-    _plugin_path_list = os.listdir("Plugin")
+    _pluginPathList = None
     # 插件对象字典
     plugin_list = {}
     # 插件回调函数名列表,用于检查重复
@@ -40,9 +25,6 @@ class PluginLoader:
 
     # 加载的插件数量
     plugin_num = 0
-
-    # 触发记录对象列表
-    trigger_list = {}
 
     # 性能警告阈值,单位为秒
     performance_warning_threshold = 1
@@ -55,14 +37,14 @@ class PluginLoader:
     # 单插件调用耗时记录
     plugin_call_time = {}
 
-    def __new__(cls, *args:Any, **kwargs:Any):
+    def __new__(cls, *args: Any, **kwargs: Any):
         if not cls._instance:
             cls._instance = super(PluginLoader, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
     def __init__(self) -> None:
         if not hasattr(self, "_initialized"):  # 防止__init__方法的重复调用
-            self._plugin_path_list = os.listdir("Plugin")
+            self._pluginPathList = os.listdir("Plugin")
             self.plugin_list = {}
             self.plugin_name_list = []
             self.plugin_num = 0
@@ -73,39 +55,14 @@ class PluginLoader:
         加载插件
         """
         # 统计加载插件的时间
-        start_time = time.time()
+        startTime = time.time()
 
-        for plugin_name in self._plugin_path_list:
+        for pluginName in self._pluginPathList:
             try:
                 # 导入模块
-                plugin_model = reload(import_module(f"Plugin.{plugin_name}"))
+                pluginModel = reload(import_module(f"Plugin.{pluginName}"))
                 # 获取优先级
-                priority = plugin_model.plugin.setting["priority"]
-                # 获取回调函数名
-                callback_name = plugin_model.plugin.setting["callback_name"]
-
-                self.trigger_list[callback_name] = Plugin_trigger(callback_name)
-
-                # 检查是否开启插件
-                if not plugin_model.plugin.setting["load"]:
-                    Log.info(f"插件 {plugin_name} 未开启,跳过加载")
-                    continue
-
-                # 检查是否存在回调函数
-                if not hasattr(plugin_model, callback_name):
-                    Log.plugin_error(
-                        plugin_name,
-                        f"在加载({plugin_name})时，发现回调函数{callback_name}不存在，请检查回调函数名",
-                    )
-                    continue
-
-                # 检查是否重复
-                if plugin_name in self.plugin_name_list:
-                    Log.plugin_error(
-                        plugin_name,
-                        f"在加载{plugin_name}时，发现重复的回调函数名{callback_name},请修改回调函数名,确保其唯一",
-                    )
-                    continue
+                priority = pluginModel.plugin.setting["priority"]
 
                 # 将插件实例添加到字典中
                 self.plugin_list[plugin_model] = priority
@@ -175,7 +132,7 @@ class PluginLoader:
 
             try:
                 # 获取插件名
-                plugin_name:str = plugin_model.plugin.name
+                plugin_name: str = plugin_model.plugin.name
                 # 获取回调函数名
                 callback_name = plugin_model.plugin.setting["callback_name"]
                 # 获取开发者设置

@@ -17,7 +17,7 @@ class EventAdapter:
     OnNext = []
 
     @staticmethod
-    def EventContral(
+    def EventControl(
         data: str,
     ) -> Union[None, GroupMassageData, PrivateMessageData]:
 

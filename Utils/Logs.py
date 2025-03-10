@@ -7,10 +7,10 @@ colorama.init(autoreset=True)
 class Log:
     """
     简单的日志类
-    包含五个方法: infor, warning, error,adapter,api_response
+    包含五个方法: info, warning, error,adapter,apiResponse
     """
 
-    pluginErrorList:dict[str, list[str]] = {}
+    pluginErrorList: dict[str, list[str]] = {}
 
     @staticmethod
     def info(msg: str) -> None:
@@ -36,7 +36,7 @@ class Log:
         print(f"{colorama.Fore.RED}\n错误:{msg}")
 
     @staticmethod
-    def pluginError(pluginName:str, msg:str) -> None:
+    def pluginError(pluginName: str, msg: str) -> None:
         """
         输出并记录插件错误信息
         """

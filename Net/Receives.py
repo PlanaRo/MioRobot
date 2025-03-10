@@ -2,16 +2,15 @@ import websockets
 import asyncio
 from config import Config
 from Utils.Logs import Log
-from Models.Event.EventContral import EventAdapter
+from Models.Event.EventControl import EventAdapter
 from GroupControl import GroupControl
 import traceback
 from PluginLoader import PluginLoaderControl
 import sys
 import time
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import uvicorn
 from config import Config
+from Utils.WebsocketControl import WebsocketControl
 
 
 class OneBotReceive:
@@ -21,7 +20,12 @@ class OneBotReceive:
     appHttp连接
     """
 
+    # 插件加载器实例
     plugin = None
+    # 配置信息
+    config = None
+    # websocket实例
+    websocket = None
 
     def __init__(self, config: Config):
         self.config = config
@@ -31,13 +35,12 @@ class OneBotReceive:
         启动ws连接
         """
         try:
-            Log.info("websockets连接中...")
-            self.Websocket = await websockets.connect(self.config.Websocket)
-            Log.info("websockets连接成功")
+            # 连接websocket
+            WebsocketControl.connect()
 
+            self.websocket = WebsocketControl.websocket
             # 初始化群管理类
-            GroupControl.init(self.Websocket)
-
+            GroupControl.init()
             # 导入单例插件类
             self.plugin = PluginLoaderControl
             # 调用插件的初始化方法
@@ -95,7 +98,7 @@ class OneBotReceive:
                 continue
 
             # 处理消息
-            MessageData = EventAdapter.EventContral(context)
+            MessageData = EventAdapter.EventControl(context)
 
             try:
                 if MessageData:

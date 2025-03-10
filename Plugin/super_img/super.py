@@ -19,7 +19,8 @@ from typing import Tuple
 
 
 mutex = Lock()
-max_size = 2073600
+# max_size = 2073600
+max_size = 20736000000
 running = False
 
 
@@ -105,3 +106,18 @@ async def do_super_resolution(
     del upsampler
 
     return result.getvalue()
+
+
+async def superImage():
+    with open(
+        "C:/Users/三三sama/Desktop/小白不留行_芙宁娜_你与我的明天_有水印.png", "rb"
+    ) as f:
+        imageDate = f.read()
+    imageDate = await do_super_resolution(imageDate, resize=True)
+
+    with open("C:/Users/三三sama/Desktop/testimage3.png", "wb") as f:
+        f.write(imageDate)
+
+
+if __name__ == "__main__":
+    asyncio.run(superImage())

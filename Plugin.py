@@ -10,12 +10,10 @@ class EventType(Enum):
 class PluginSetting:
     # 插件优先级
     _priority: int = 0
-    # 是否加载
-    _load: bool = True
     # 是否启用
     _enable: bool = True
     # 监听事件列表
-    _event: list[EventType]
+    _event: list[EventType] = []
     # 是否在菜单隐藏,为True时将不会在简易菜单中显示
     _hide: bool = True
 
@@ -26,14 +24,6 @@ class PluginSetting:
     @priority.setter
     def priority(self, priority: int) -> None:
         self._priority = priority
-
-    @property
-    def load(self) -> bool:
-        return self._load
-
-    @load.setter
-    def load(self, load: bool) -> None:
-        self._load = load
 
     @property
     def enable(self) -> bool:
@@ -158,7 +148,7 @@ class Plugin(ABC):
     @property
     def setting(self) -> PluginSetting:
         return self._setting
-    
+
     @setting.setter
     def setting(self, setting: PluginSetting) -> None:
         self._setting = setting
@@ -166,12 +156,10 @@ class Plugin(ABC):
     @property
     def developerSetting(self) -> DeveloperSetting:
         return self._developerSetting
-    
+
     @developerSetting.setter
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
-
-
 
     @abstractmethod
     def init(self) -> None:
