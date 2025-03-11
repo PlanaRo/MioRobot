@@ -7,7 +7,7 @@ class GroupMassageData(MessageData):
     """
 
     # 事件戳
-    Time: str
+    Time: int
     # 事件类型
     Post_Type: str
     # 消息类型

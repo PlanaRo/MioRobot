@@ -7,7 +7,7 @@ class MessageData(BaseModel):
     """
 
     # 机器人QQ号
-    Robot: int
+    Robot: str
     # 事件类型
     Post_Type: str
     # 消息事件戳

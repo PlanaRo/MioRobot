@@ -32,7 +32,6 @@ class Log:
         """
         输出错误信息
         """
-        # print(colorama.Fore.RED + "\n错误:", msg)
         print(f"{colorama.Fore.RED}\n错误:{msg}")
 
     @staticmethod

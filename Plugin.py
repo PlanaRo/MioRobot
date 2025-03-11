@@ -4,6 +4,8 @@ import inspect
 import json
 import os
 from dataclasses import dataclass
+from typing import Any
+from DataType.MessageData import MessageData
 from Utils.Logs import Log
 
 
@@ -56,11 +58,11 @@ class PluginSetting:
         self._hide = hide
 
     @classmethod
-    def loadFromJson(cls, jsonData: dict) -> "PluginSetting":
+    def loadFromJson(cls, jsonData: str | bytes | bytearray) -> "PluginSetting":
         """
         从JSON数据中加载插件设置
         """
-        data: dict[str, any] = json.loads(jsonData)
+        data: dict[str, Any] = json.loads(jsonData)
         return cls(**data)
 
 
@@ -98,17 +100,38 @@ class DeveloperSetting:
         self._runtimeThreshold = runtimeThreshold
 
     @classmethod
-    def loadFromJson(cls, jsonData: dict) -> "PluginSetting":
+    def loadFromJson(cls, jsonData: str | bytes | bytearray) -> "DeveloperSetting":
         """
         从JSON数据中加载插件设置
         """
-        data: dict[str, any] = json.loads(jsonData)
+        data: dict[str, Any] = json.loads(jsonData)
         return cls(**data)
 
 
+class PluginReturnMessage(ABC):
+    # 是否触发了事件
+    triggered: bool = False
+    # 是否中断
+    interrupt: bool = False
+    # 触发的次数
+    triggerNumber: int = 0
+
+    def updata(self):
+        self.triggered = True
+        self.triggerNumber += 1
+
+    def setInterrupt(self):
+        self.interrupt = True
+
+    def isInterrupt(self) -> bool:
+        return self.interrupt
+
+    def isTriggered(self) -> bool:
+        return self.triggered
+
+
 class Plugin(ABC):
-    # 插件子类列表
-    subclasses: list[type["Plugin"]] = []
+
     # 插件作者
     _author: str
     # 插件名称
@@ -187,9 +210,9 @@ class Plugin(ABC):
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
 
-    @classmethod
-    def registerPlugin(cls, subclass):
-        cls.subclasses.append(subclass)
+    # @classmethod
+    # def registerPlugin(cls, subclass):
+    #     cls.subclasses.append(subclass)
 
     @abstractmethod
     def init(self) -> None:
@@ -199,7 +222,10 @@ class Plugin(ABC):
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    async def run(
+        self,
+        messageData: MessageData,
+    ) -> PluginReturnMessage:
         """
         此方法用于插件运行
         """
@@ -236,38 +262,16 @@ class Plugin(ABC):
             return False  # 失败返回False
 
 
-def register(cls):
-    """
-    注册插件：
-    @register
-    class MyPlugin(Plugin):
-        pass
-    """
-    try:
-        Plugin.register(cls)
-        return cls
+# def register(cls):
+#     """
+#     注册插件：
+#     @register
+#     class MyPlugin(Plugin):
+#         pass
+#     """
+#     try:
+#         Plugin.register(cls)
+#         return cls
 
-    except Exception as e:
-        Log.error(f"插件注册失败：{e}")
-
-
-class PluginReturnMessage(ABC):
-    # 是否触发了事件
-    triggered: bool = False
-    # 是否中断
-    interrupt: bool = False
-    # 触发的次数
-    triggerNumber: int = 0
-
-    def updata(self):
-        self.triggered = True
-        self.triggerNumber += 1
-
-    def setInterrupt(self):
-        self.interrupt = True
-
-    def isInterrupt(self) -> bool:
-        return self.interrupt
-
-    def isTriggered(self) -> bool:
-        return self.triggered
+#     except Exception as e:
+#         Log.error(f"插件注册失败：{e}")

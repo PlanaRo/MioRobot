@@ -1,10 +1,11 @@
 import asyncio
+from websockets import WebSocketClientProtocol
 from config import Config
 from Utils.Logs import Log
 from Models.Event.EventControl import EventAdapter
 from GroupControl import GroupControl
 import traceback
-from PluginLoader import PluginLoaderControl
+from PluginLoader import PluginLoader, PluginLoaderControl
 import sys
 import time
 import uvicorn
@@ -20,11 +21,11 @@ class CoreServer:
     """
 
     # 插件加载器实例
-    plugin = None
+    plugin: PluginLoader
     # 配置信息
-    config = None
+    config: Config
     # websocket实例
-    websocket = None
+    websocket: WebSocketClientProtocol
 
     def __init__(self, config: Config):
         self.config = config
@@ -35,7 +36,7 @@ class CoreServer:
         """
         try:
             # 连接websocket
-            WebsocketControl.connect()
+            await WebsocketControl.connect(config)
 
             self.websocket = WebsocketControl.websocket
             # 初始化群管理类
