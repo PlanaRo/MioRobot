@@ -1,6 +1,7 @@
 import os
 from importlib import import_module, reload
 from typing import Any
+import Plugin as BasePlugin
 from Utils.Logs import Log
 from DataType.MessageData import MessageData
 import traceback
@@ -18,24 +19,19 @@ class PluginLoader:
     _instance = None
     # 插件路径
     _pluginPathList = None
-    # 插件对象字典
-    plugin_list = {}
-    # 插件回调函数名列表,用于检查重复
-    plugin_name_list = []
+    # 插件实例字典
+    pluginInstanceList = {}
 
     # 加载的插件数量
-    plugin_num = 0
+    pluginNumber = 0
 
     # 性能警告阈值,单位为秒
-    performance_warning_threshold = 1
+    performanceWarningThreshold = 1
     # 全部插件初始化加载时间
-    plugin_load_time = 0
-
-    # 全部插件调用耗时记录
-    plugin_call_time_all = 0
+    pluginLoadTime = 0
 
     # 单插件调用耗时记录
-    plugin_call_time = {}
+    pluginCallTime = {}
 
     def __new__(cls, *args: Any, **kwargs: Any):
         if not cls._instance:
@@ -45,9 +41,6 @@ class PluginLoader:
     def __init__(self) -> None:
         if not hasattr(self, "_initialized"):  # 防止__init__方法的重复调用
             self._pluginPathList = os.listdir("Plugin")
-            self.plugin_list = {}
-            self.plugin_name_list = []
-            self.plugin_num = 0
             self._initialized = True
 
     def loading(self) -> None:
@@ -57,39 +50,55 @@ class PluginLoader:
         # 统计加载插件的时间
         startTime = time.time()
 
-        for pluginName in self._pluginPathList:
+        # for pluginName in self._pluginPathList:
+        #     try:
+        #         # 导入模块
+        #         pluginModel: Plugin = reload(import_module(f"Plugin.{pluginName}"))
+        #         # 获取优先级
+        #         priority = pluginModel.Plugin.setting["priority"]
+
+        #         # 将插件实例添加到字典中
+        #         self.plugin_list[plugin_model] = priority
+
+        #         # 记录回调函数名
+        #         self.plugin_name_list.append(callback_name)
+
+        #         # 记录加载的插件数量
+        #         self.plugin_num += 1
+
+        #     except Exception as e:
+        #         exc_type, exc_value, exc_traceback = sys.exc_info()
+        #         tb = traceback.extract_tb(exc_traceback)
+
+        #         Log.plugin_error(
+        #             plugin_name,
+        #             f"加载插件 {plugin_name} 失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
+        #         )
+
+        # # 将插件按照优先级排序
+        # self.plugin_list = dict(
+        #     sorted(self.plugin_list.items(), key=lambda item: item[1], reverse=True)
+        # )
+        # Log.info(f"成功加载了{self.plugin_num}个插件")
+
+        # self.plugin_load_time = time.time() - start_time
+        # Log.info(f"加载插件耗时: {self.plugin_load_time}秒")
+        subclasses = BasePlugin.Plugin.subclasses
+        for subclass in subclasses:
             try:
-                # 导入模块
-                pluginModel = reload(import_module(f"Plugin.{pluginName}"))
-                # 获取优先级
-                priority = pluginModel.plugin.setting["priority"]
-
-                # 将插件实例添加到字典中
-                self.plugin_list[plugin_model] = priority
-
-                # 记录回调函数名
-                self.plugin_name_list.append(callback_name)
-
-                # 记录加载的插件数量
-                self.plugin_num += 1
+                pluginInstance = subclass()
+                pluginInstance.init()
+                self.pluginInstanceList[pluginInstance] = (
+                    pluginInstance.setting.priority
+                )
 
             except Exception as e:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 tb = traceback.extract_tb(exc_traceback)
-
                 Log.plugin_error(
-                    plugin_name,
-                    f"加载插件 {plugin_name} 失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
+                    subclass.__name__,
+                    f"加载插件 {subclass.__name__} 失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
                 )
-
-        # 将插件按照优先级排序
-        self.plugin_list = dict(
-            sorted(self.plugin_list.items(), key=lambda item: item[1], reverse=True)
-        )
-        Log.info(f"成功加载了{self.plugin_num}个插件")
-
-        self.plugin_load_time = time.time() - start_time
-        Log.info(f"加载插件耗时: {self.plugin_load_time}秒")
 
     def reload(self) -> None:
         """
@@ -115,15 +124,15 @@ class PluginLoader:
 
         Log.info("重载成功")
 
-    async def call_back(
+    async def callBack(
         self,
-        websocket: websockets.WebSocketClientProtocol,
-        Post_Type: str,
-        data: MessageData,
+        messageData: MessageData,
     ) -> None:
         """
         调用插件
         """
+
+        Post_Type = messageData.Post_Type
 
         # 统计插件调用的时间
         start_time = time.time()

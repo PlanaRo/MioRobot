@@ -1,5 +1,10 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+import inspect
+import json
+import os
+from dataclasses import dataclass
+from Utils.Logs import Log
 
 
 class EventType(Enum):
@@ -7,6 +12,7 @@ class EventType(Enum):
     FriendMessage = "FriendMessage"
 
 
+@dataclass
 class PluginSetting:
     # 插件优先级
     _priority: int = 0
@@ -49,7 +55,16 @@ class PluginSetting:
     def hide(self, hide: bool) -> None:
         self._hide = hide
 
+    @classmethod
+    def loadFromJson(cls, jsonData: dict) -> "PluginSetting":
+        """
+        从JSON数据中加载插件设置
+        """
+        data: dict[str, any] = json.loads(jsonData)
+        return cls(**data)
 
+
+@dataclass
 class DeveloperSetting:
     # 是否启用debug模式
     _debug: bool = False
@@ -82,8 +97,18 @@ class DeveloperSetting:
     def runtimeThreshold(self, runtimeThreshold: float) -> None:
         self._runtimeThreshold = runtimeThreshold
 
+    @classmethod
+    def loadFromJson(cls, jsonData: dict) -> "PluginSetting":
+        """
+        从JSON数据中加载插件设置
+        """
+        data: dict[str, any] = json.loads(jsonData)
+        return cls(**data)
+
 
 class Plugin(ABC):
+    # 插件子类列表
+    subclasses: list[type["Plugin"]] = []
     # 插件作者
     _author: str
     # 插件名称
@@ -100,10 +125,11 @@ class Plugin(ABC):
     _developerSetting: DeveloperSetting
 
     def __init__(self):
-
-        self._setting: PluginSetting = PluginSetting()
-
-        self._developerSetting: DeveloperSetting = DeveloperSetting()
+        """
+        初始化插件
+        如果子类需要重写构造函数，请使用super().__init__()
+        """
+        self.loadConfig()
 
     @property
     def author(self) -> str:
@@ -161,14 +187,87 @@ class Plugin(ABC):
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
 
+    @classmethod
+    def registerPlugin(cls, subclass):
+        cls.subclasses.append(subclass)
+
     @abstractmethod
     def init(self) -> None:
+        """
+        此方法用于插件初始化私有数据
+        """
         pass
 
     @abstractmethod
     def run(self) -> None:
+        """
+        此方法用于插件运行
+        """
         pass
 
     @abstractmethod
     def dispose(self) -> None:
+        """
+        此方法用于释放内存等资源
+        """
         pass
+
+    def loadConfig(self) -> bool:
+        """
+        获取配置文件中对应键的值
+        """
+        currentClass = self.__class__
+        filePath = inspect.getfile(currentClass)
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+
+        try:
+            # 读取配置文件
+            with open(jsonFilePath, "r") as configFile:
+                configData = json.load(configFile)
+                self._setting = PluginSetting.loadFromJson(
+                    configData.get("setting", {})
+                )
+                self._developerSetting = DeveloperSetting.loadFromJson(
+                    configData.get("developer_setting", {})
+                )
+            return True  # 成功返回True
+        except Exception as e:
+            Log.error(f"错误信息{e}")
+            return False  # 失败返回False
+
+
+def register(cls):
+    """
+    注册插件：
+    @register
+    class MyPlugin(Plugin):
+        pass
+    """
+    try:
+        Plugin.register(cls)
+        return cls
+
+    except Exception as e:
+        Log.error(f"插件注册失败：{e}")
+
+
+class PluginReturnMessage(ABC):
+    # 是否触发了事件
+    triggered: bool = False
+    # 是否中断
+    interrupt: bool = False
+    # 触发的次数
+    triggerNumber: int = 0
+
+    def updata(self):
+        self.triggered = True
+        self.triggerNumber += 1
+
+    def setInterrupt(self):
+        self.interrupt = True
+
+    def isInterrupt(self) -> bool:
+        return self.interrupt
+
+    def isTriggered(self) -> bool:
+        return self.triggered

@@ -1,4 +1,3 @@
-import websockets
 import asyncio
 from config import Config
 from Utils.Logs import Log
@@ -13,10 +12,10 @@ from config import Config
 from Utils.WebsocketControl import WebsocketControl
 
 
-class OneBotReceive:
+class CoreServer:
     """
+    核心服务用于启动
     ws连接
-
     appHttp连接
     """
 
@@ -50,7 +49,7 @@ class OneBotReceive:
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            tb = traceback.extract_tb(exc_traceback)
+            # tb = traceback.extract_tb(exc_traceback)
             # 查看详细错误信息
             # Log.error(
             #     f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
@@ -69,14 +68,14 @@ class OneBotReceive:
                 lambda: uvicorn.run(
                     "Net.appHttp:appHttp",
                     host="0.0.0.0",
-                    port=int(self.config.UvicornPort),
+                    port=int(self.config.uvicornPort),
                     reload=False,
                 ),
             )
 
         except Exception as e:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            tb = traceback.extract_tb(exc_traceback)
+            # exc_type, exc_value, exc_traceback = sys.exc_info()
+            # tb = traceback.extract_tb(exc_traceback)
             # 查看详细错误信息
             # Log.error(
             #     f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
@@ -92,21 +91,19 @@ class OneBotReceive:
         """
         while True:
             # 接收消息
-            context = await self.Websocket.recv()
+            context = await self.websocket.recv()
             # 判断是否为空
             if context.isspace():
                 continue
 
             # 处理消息
-            MessageData = EventAdapter.EventControl(context)
+            messageData = EventAdapter.EventControl(context)
 
             try:
-                if MessageData:
+                if messageData:
 
                     # 调用插件的接收方法
-                    await self.plugin.call_back(
-                        self.Websocket, MessageData.Post_Type, MessageData
-                    )
+                    await self.plugin.callBack(messageData)
 
             except Exception as e:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -118,4 +115,4 @@ class OneBotReceive:
 
 
 config = Config()
-recv = OneBotReceive(config)
+recv = CoreServer(config)

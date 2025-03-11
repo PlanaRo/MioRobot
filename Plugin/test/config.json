@@ -5,6 +5,10 @@
     "displayName": "",
     "description":"",
     "version": "",
-    "setting": "",
-    "developerSetting": ""
+    "setting": {
+        "enable": true
+    },
+    "developerSetting": {
+
+    }
 }
