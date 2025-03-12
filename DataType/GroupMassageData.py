@@ -14,7 +14,6 @@ class GroupMassageData(MessageData):
     Message_Type: str
     # 消息子类型，为normal
     Sub_Type: str
-
     # QQ号
     QQ: str
     # 等级

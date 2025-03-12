@@ -3,33 +3,37 @@ from Models.Event.PrivateMessageEvent import PrivateMessageEvent
 from Models.Event.NoticeEvent import NoticeEvent
 from Models.Event.RequestEvent import RequestEvent
 from Models.Event.MetaEvent import MetaEvent
-from DataType.GroupMassageData import GroupMassageData
-from DataType.PrivateMessageData import PrivateMessageData
-
-
 from typing import Union
 import json
 from Utils.Logs import Log
+from Utils.Task import Task
 
 
 class EventAdapter:
     # 事件控制
-    OnNext = []
+    OnNext: list[Task] = []
 
     @staticmethod
     def EventControl(
-        data: str,
-    ) -> Union[None, GroupMassageData, PrivateMessageData]:
+        rawData: str,
+    ) -> Union[
+        None,
+        GroupMessageEvent,
+        PrivateMessageEvent,
+        NoticeEvent,
+        RequestEvent,
+        MetaEvent,
+    ]:
 
         try:
             # 用于处理api返回的json数据
-            data = json.loads(data)
+            data = json.loads(rawData)
             if "echo" in data:
                 # 将api返回的消息打印到控制台
-                Log.api_response(data)
+                Log.apiResponse(data)
                 for item in EventAdapter.OnNext:
                     if item.echo == data["echo"]:
-                        item.set_result(data)
+                        item.setResult(data)
             else:
                 # 输出收到的消息到控制台
                 Log.adapter(data)
@@ -41,11 +45,8 @@ class EventAdapter:
                     if Message_Type == "group":
                         from GroupControl import GroupControl
 
-                        data = GroupMessageEvent(data)
-                        # 检查是否开启对应群的消息接收
-                        if not GroupControl.is_enable(data.Group):
-                            # Log.warning("当前群未开启")
-                            return None
+                        data = GroupMessageEvent(data)  # type: ignore
+
                         return data
                     elif Message_Type == "private":
                         data = PrivateMessageEvent(data)

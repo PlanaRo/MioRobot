@@ -1,87 +1,106 @@
-class GroupMessageEvent:
+from Models.Event.BaseEvent import BaseEvent
+from Models.Event.EventType import EventType
+
+
+class GroupMessageEvent(BaseEvent):
+    """
+    群消息事件
+    """
+
+    # 事件戳
+    Time: int
+    # 事件类型
+    Post_Type: EventType
+    # 消息类型
+    Message_Type: str
+    # 消息子类型，为normal
+    Sub_Type: str
+    # QQ号
+    QQ: str
+    # 等级
+    Level: int
+    # 发送者角色
+    Role: str
+    # 发送者头衔
+    Title: str
+    # robot的QQ号
+    Robot: str
+    # 昵称
+    Nickname: str
+    # 群号
+    Group: str
+    # 群昵称Card
+    GroupNickname: str
+    # 群消息
+    Message: list
+    # 群消息类型
+    Group_Message_Type: str  # type: ignore
+    # 消息ID
+    Message_ID: int | None
+    # 原始消息，即带CQ码的消息
+    RowMessage: str
+    # 便捷消息读取
+    # 消息图片
+    Images: list[str]
+    # At对象
+    At: list
 
     def __init__(self, data: dict):
-        # 事件类型，为message
-        self.Post_Type = data.get("post_type", None)
+        sender = data.get("sender", {})
+        # 初始化基础属性
+        self.Post_Type = EventType.GroupMessage
+        self.Message_Type = data.get("message_type", "")
+        self.Time = data.get("time", "")
+        self.Sub_Type = data.get("sub_type", "")
+        self.QQ = str(data.get("user_id"))
+        self.Level = sender.get("level")
+        self.Title = sender.get("title")
+        self.Role = sender.get("role")
+        self.Robot = str(data.get("self_id"))
+        self.Nickname = sender.get("nickname")
+        self.Group = str(data.get("group_id"))
+        self.GroupNickname = sender.get("card")
+        self.RowMessage = data.get("raw_message", "")
+        self.Message_ID = data.get("message_id", None)
 
-        # 消息类型,private或group
-        self.Message_Type = data.get("message_type", None)
-
-        # 事件戳
-        self.Time = data.get("time", None)
-
-        # 消息子类型，为normal
-        self.Sub_Type = data.get("sub_type", None)
-
-        # QQ号
-        self.QQ = str(data.get("user_id", None))
-        # 等级
-        self.Level = data.get("sender").get("level", None)
-        # 发送者头衔
-        self.Title = data.get("sender", None).get("title", None)
-        # 发送者角色  member,owner,admin
-        self.Role = data.get("sender").get("role", None)
-        # robot的QQ号
-        self.Robot = str(data.get("self_id", None))
-
-        # 昵称
-        self.Nickname = data.get("sender").get("nickname", None)
-        # 群号
-        self.Group = str(data.get("group_id", None))
-        # 群昵称
-        self.GroupNickname = data.get("sender").get("card", None)
-
-        # 原始格式化消息数据
-        self.MessageData = data.get("message", None)
-
-        # 便捷消息读取
-        # 群消息,仅包含文字的列表
+        # 初始化便捷消息读取列表
         self.Message = []
-
-        # 消息图片，仅包含图片的列表
         self.Images = []
-        # At对象，仅包含At对象的列表
         self.At = []
 
-        # 对原始格式化消息数据进行解析，传入便捷消息
-        if self.MessageData is not None:
-            for MessageDataCacha in self.MessageData:
-                # 文字消息
-                if MessageDataCacha.get("type", None) == "text":
-                    self.Message.append(MessageDataCacha.get("data").get("text", None))
-                    continue
-                # 图片消息
-                # 原始图片
-                # if self.MessageDataCacha.get("type", None) == "image":
-                #     self.Images.append(
-                #         self.MessageDataCacha.get("data").get("url", None)
-                #     )
+        # 解析原始消息数据
+        self.MessageData = data.get("message", [])
+        self.__parse_message_data()
 
-                # 替换图床链接后的图片，这只是一个临时方案
-                if MessageDataCacha.get("type", None) == "image":
-                    self.Images.append(
-                        MessageDataCacha.get("data")
-                        .get("url", None)
-                        .replace(
-                            "https://multimedia.nt.qq.com.cn/", "https://gchat.qpic.cn/"
-                        )
-                    )
-                    continue
+    def __parse_message_data(self):
+        """解析消息数据"""
+        for item in self.MessageData:
+            msg_type = item.get("type")
+            msg_data = item.get("data", {})
 
-                # At消息
-                if MessageDataCacha.get("type", None) == "at":
-                    self.At.append(str(MessageDataCacha.get("data").get("qq", None)))
-                    continue
+            if msg_type == "text":
+                self.Message.append(msg_data.get("text", ""))
+            elif msg_type == "image":
+                url = msg_data.get("url", "").replace(
+                    "https://multimedia.nt.qq.com.cn/", "https://gchat.qpic.cn/"
+                )
+                self.Images.append(url)
+            elif msg_type == "at":
+                self.At.append(str(msg_data.get("qq", "")))
 
+        # 如果没有文字消息，添加空字符串占位
         if not self.Message:
             self.Message.append("")
 
-        # 原始消息，即带CQ码的消息
-        self.RowMessage = data.get("raw_message", None)
-        # 群消息类型
-        self.Group_Message_Type = self.MessageData[0].get("type", None)
-        # 消息ID
-        self.Message_ID = data.get("message_id", None)
+    @property
+    def Group_Message_Type(self) -> str:
+        """获取群消息类型"""
+        return self.MessageData[0].get("type", "") if self.MessageData else ""
 
     def __str__(self):
-        return f"{self.QQ} {self.Nickname} {self.Group} {self.GroupNickname} {self.Message} {self.Message_Type} {self.Images} {self.Message_ID} {self.Time}"
+        return (
+            f"QQ: {self.QQ}, Nickname: {self.Nickname}, Group: {self.Group}, "
+            f"GroupNickname: {self.GroupNickname}, Message: {self.Message}, "
+            f"MessageType: {self.Message_Type}, Images: {self.Images}, "
+            f"MessageID: {self.Message_ID}, Time: {self.Time}"
+        )

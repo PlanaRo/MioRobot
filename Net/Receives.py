@@ -50,11 +50,11 @@ class CoreServer:
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            # tb = traceback.extract_tb(exc_traceback)
+            tb = traceback.extract_tb(exc_traceback)
             # 查看详细错误信息
-            # Log.error(
-            #     f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
-            # )
+            Log.error(
+                f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
+            )
             Log.error("websockets连接失败，请检查配置")
             Log.info("将在10秒后尝试重新连接")
             time.sleep(10)
@@ -92,7 +92,7 @@ class CoreServer:
         """
         while True:
             # 接收消息
-            context = await self.websocket.recv()
+            context: str = await self.websocket.recv()  # type: ignore
             # 判断是否为空
             if context.isspace():
                 continue

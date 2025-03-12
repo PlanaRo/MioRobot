@@ -1,5 +1,6 @@
 import os
 from typing import Any, Type
+from Models.Event.BaseEvent import BaseEvent
 import Plugin as BasePlugin
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
@@ -47,7 +48,7 @@ class PluginLoader:
         startTime = time.time()
         # 扫描获取所有插件类
         subclasses: list[Type[BasePlugin.Plugin]] = findSubclasses(
-            "plugin", BasePlugin.Plugin, reload
+            "Plugins", BasePlugin.Plugin, reload
         )
 
         for subclass in subclasses:
@@ -60,6 +61,7 @@ class PluginLoader:
                 self.pluginInstanceList[pluginInstance] = (
                     pluginInstance.setting.priority
                 )
+                self.pluginNumber += 1
 
             except Exception as e:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -104,7 +106,7 @@ class PluginLoader:
 
     async def callBack(
         self,
-        messageData: MessageData,
+        messageData: BaseEvent,
     ) -> None:
         """
         调用插件
@@ -129,7 +131,7 @@ class PluginLoader:
                     # 将插件运行时间添加到字典中
                     self.pluginCallTime[plugin.name] = runtime
                     # 判断插件是否触发,如果触发则取消后续插件的运行
-                    if pluginReturnMessage.isTriggered:
+                    if pluginReturnMessage.isInterrupt():
                         break
 
             except Exception as e:

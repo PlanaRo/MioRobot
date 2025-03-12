@@ -1,9 +1,8 @@
 from typing import Union
-from DataType.GroupMassageData import GroupMassageData
 import asyncio
-import json
+from Models.Event.GroupMessageEvent import GroupMessageEvent
+from Models.Event.PrivateMessageEvent import PrivateMessageEvent
 from Utils.Logs import Log
-import websockets
 from Models.Api.BaseApi import RequestApi, ApiAdapter
 
 
@@ -14,11 +13,10 @@ class MessageApi:
 
     @staticmethod
     async def sendGroupMessage(
-        websocket: websockets.WebSocketClientProtocol,
-        MessageData: GroupMassageData,
+        MessageData: GroupMessageEvent,
         message: Union[str, list, list[dict]],
         is_node: bool = False,
-    ) -> str:
+    ) -> dict | str | None:
         """
         发送群消息
         @param websocket: websocket对象
@@ -48,27 +46,29 @@ class MessageApi:
                 # 构建消息
                 param = {"message": message, "group_id": MessageData.Group}
                 args = RequestApi(api, param)
-                return await ApiAdapter.sendActionApi(websocket, args, 5)
+                return await ApiAdapter.sendActionApi(args, 5)
 
             # 判断message是否为列表
             elif all(isinstance(item, (str, int, float)) for item in message):
+                response = None
                 # 依次发送列表中的消息，间隔一秒
                 for item in message:
                     # 构建消息
                     param = {"message": item, "group_id": MessageData.Group}
                     args = RequestApi(api, param)
-                    response = await ApiAdapter.sendActionApi(websocket, args, 5)
+                    response = await ApiAdapter.sendActionApi(args, 5)
                     # 等待一秒，或许无用？
                     await asyncio.sleep(1)
                 return response
             # 判断message是否为字典
             elif all(isinstance(item, dict) for item in message):
+                response = None
                 # 发送字典中的消息，自定义时间间隔
                 for item in message:
                     # 构建消息
                     param = {"message": item["message"], "group_id": MessageData.Group}
                     args = RequestApi(api, param)
-                    response = await ApiAdapter.sendActionApi(websocket, args, 5)
+                    response = await ApiAdapter.sendActionApi(args, 5)
                     # 等待一秒，或许无用？
                     await asyncio.sleep(item.get("time", 1))
                 return response
@@ -88,7 +88,7 @@ class MessageApi:
                 # 构建消息
                 param = {"message": messageChains, "group_id": MessageData.Group}
                 args = RequestApi(api, param)
-                return await ApiAdapter.sendActionApi(websocket, args, 5)
+                return await ApiAdapter.sendActionApi(args, 5)
             # 判断message是否为列表
             elif all(isinstance(item, (str, int, float)) for item in message):
 
@@ -98,7 +98,7 @@ class MessageApi:
                 # 构建消息
                 param = {"message": messageChains, "group_id": MessageData.Group}
                 args = RequestApi(api, param)
-                return await ApiAdapter.sendActionApi(websocket, args, 5)
+                return await ApiAdapter.sendActionApi(args, 5)
 
             else:
                 Log.error("发送的消息不符合规范")
@@ -106,7 +106,7 @@ class MessageApi:
     @staticmethod
     async def sendPrivateMessage(
         websocket: object,
-        MessageData: GroupMassageData,
+        MessageData: PrivateMessageEvent,
         message: Union[str, list, list[dict]],
         is_node: bool = False,
     ):

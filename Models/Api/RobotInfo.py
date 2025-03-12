@@ -11,7 +11,7 @@ class RobotInfo:
         raise NotImplementedError
 
     @staticmethod
-    async def getGroupLList() -> str:
+    async def getGroupList() -> str | dict | None:
         param = {"no_cache": False}
         args = RequestApi("get_group_list", param)
         return await ApiAdapter.sendActionApi(args, 5)

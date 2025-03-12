@@ -24,4 +24,4 @@ class Config:
 
     def __setManageData(self, jsonData):
         # Uvicorn配置信息
-        self.uvicornPort = jsonData["ManagePort"]
+        self.uvicornPort = jsonData["managePort"]

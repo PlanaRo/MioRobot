@@ -1,4 +1,7 @@
-class MetaEvent:
+from Models.Event.BaseEvent import BaseEvent
+
+
+class MetaEvent(BaseEvent):
 
     def __init__(self, data: dict):
 

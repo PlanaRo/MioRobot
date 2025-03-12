@@ -2,6 +2,7 @@ from Models.Api.RobotInfo import RobotInfo
 import websockets
 import json
 import asyncio
+from Utils.Logs import Log
 from Utils.WebsocketControl import WebsocketControl
 
 
@@ -12,7 +13,7 @@ class GroupControl:
 
     # 群列表,群号为键,群是否开启为值
     groupList = {}
-    websocket: websockets.WebSocketClientProtocol = None
+    websocket: websockets.WebSocketClientProtocol
 
     @staticmethod
     def init():
@@ -32,8 +33,11 @@ class GroupControl:
         :return: 群数据
         """
         # 通过接口获取群数据
-        rowGroupData = await RobotInfo.getGroupLList()
-        GroupControl.updateGroupData(rowGroupData)
+        rowGroupData = await RobotInfo.getGroupList()
+        if rowGroupData is not None:
+            GroupControl.updateGroupData(rowGroupData)  # type: ignore
+        else:
+            Log.error("获取群数据失败")
 
     @staticmethod
     def isEnable(groupId: str) -> bool:
@@ -42,7 +46,7 @@ class GroupControl:
         :param group_id: 群号
         :return: 是否启用
         """
-        return GroupControl.group_list.get(groupId, False)
+        return GroupControl.groupList.get(groupId, False)
 
     @staticmethod
     def updateGroupData(rowGroupData: dict):

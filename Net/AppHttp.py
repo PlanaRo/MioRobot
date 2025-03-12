@@ -5,9 +5,8 @@ from Utils.Logs import Log
 import json
 import threading
 from config import Config
-from Cryptodome.Cipher import AES
-from Cryptodome.Random import get_random_bytes
-import base64
+
+
 import psutil
 import importlib.util
 import getpass
@@ -22,43 +21,6 @@ from Net.Receives import recv
 import os
 
 
-# AES加密类
-class AESCipher:
-    def __init__(self, key):
-        self.key = key
-
-    # 填充数据，使其长度为16的倍数
-    def _pad(self, text):
-        # AES的块大小是16字节
-        block_size = AES.block_size
-        padding_length = block_size - len(text) % block_size
-        # 使用PKCS7填充
-        padding = chr(padding_length) * padding_length
-        return text + padding
-
-    # 去除填充
-    def _unpad(self, text):
-        padding_length = ord(text[-1])
-        return text[:-padding_length]
-
-    # 加密函数
-    def encrypt(self, raw):
-        raw = self._pad(raw)
-        iv = get_random_bytes(AES.block_size)  # 生成初始化向量
-        cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        encrypted = cipher.encrypt(raw.encode("utf-8"))
-        # 返回加密后的内容（初始化向量 + 加密数据），并进行Base64编码
-        return base64.b64encode(iv + encrypted).decode("utf-8")
-
-    # 解密函数
-    def decrypt(self, enc):
-        enc = base64.b64decode(enc)
-        iv = enc[: AES.block_size]  # 提取初始化向量
-        cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        decrypted = cipher.decrypt(enc[AES.block_size :]).decode("utf-8")
-        return self._unpad(decrypted)
-
-
 appHttp = FastAPI()
 
 
@@ -70,7 +32,7 @@ async def bot_info():
     api = "get_login_info"
     param = {0: 0}
     args = RequestApi(api, param)
-    iii = await ApiAdapter.sendActionApi(recv.Websocket, args, 5)
+    iii = await ApiAdapter.sendActionApi(recv.websocket, args, 5)
     return iii["data"]
 
 
@@ -303,130 +265,6 @@ async def get_plugin_list():
         plugin_list_r[plugin_name] = load_Plugin(module_path)
 
     return plugin_list_r
-
-
-# class UpdateLoadValue(ast.NodeTransformer):
-#     def __init__(self, new_load_value):
-#         self.new_load_value = new_load_value
-#         # 继承方法，实例化时载入参数
-
-#     def visit_Assign(self, node):
-
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "author_data"
-#         ):
-#             if isinstance(node.value, ast.Str):
-#                 node.value = ast.Str(s=self.new_load_value["author"])
-#         if isinstance(node.targets[0], ast.Name) and node.targets[0].id == "name_data":
-#             if isinstance(node.value, ast.Str):
-#                 node.value = ast.Str(s=self.new_load_value["name"])
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "display_name_data"
-#         ):
-#             if isinstance(node.value, ast.Str):
-#                 node.value = ast.Str(s=self.new_load_value["display_name"])
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "version_data"
-#         ):
-#             if isinstance(node.value, ast.Str):
-#                 node.value = ast.Str(s=self.new_load_value["version"])
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "description_data"
-#         ):
-#             if isinstance(node.value, ast.Str):
-#                 node.value = ast.Str(s=self.new_load_value["description"])
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "developer_setting_data"
-#         ):
-#             if isinstance(node.value, ast.Dict):
-#                 # 提取字典数据
-#                 setting_dict = self.new_load_value["developer_setting"]
-#                 # 创建 AST 字典节点
-#                 keys = [ast.Str(s=str(key)) for key in setting_dict.keys()]
-#                 values = [
-#                     (
-#                         ast.Str(s=str(value))
-#                         if isinstance(value, str)
-#                         else (
-#                             ast.Num(n=value)
-#                             if isinstance(value, (int, float))
-#                             else (
-#                                 ast.NameConstant(value=value)
-#                                 if isinstance(value, (bool, type(None)))
-#                                 else (
-#                                     ast.List(
-#                                         elts=[ast.Str(s=item) for item in value],
-#                                         ctx=ast.Load(),
-#                                     )
-#                                     if isinstance(value, list)
-#                                     else ast.Name(id=str(value))
-#                                 )
-#                             )
-#                         )
-#                     )  # 其他类型暂时使用 Name 作为占位
-#                     for value in setting_dict.values()
-#                 ]
-#                 node.value = ast.Dict(keys=keys, values=values)
-
-#         if (
-#             isinstance(node.targets[0], ast.Name)
-#             and node.targets[0].id == "setting_data"
-#         ):
-#             if isinstance(node.value, ast.Dict):
-#                 # 提取字典数据
-#                 setting_dict = self.new_load_value["setting"]
-#                 # 创建 AST 字典节点
-#                 keys = [ast.Str(s=str(key)) for key in setting_dict.keys()]
-#                 values = [
-#                     (
-#                         ast.Str(s=str(value))
-#                         if isinstance(value, str)
-#                         else (
-#                             ast.Num(n=value)
-#                             if isinstance(value, (int, float))
-#                             else (
-#                                 ast.NameConstant(value=value)
-#                                 if isinstance(value, (bool, type(None)))
-#                                 else (
-#                                     ast.List(
-#                                         elts=[ast.Str(s=item) for item in value],
-#                                         ctx=ast.Load(),
-#                                     )
-#                                     if isinstance(value, list)
-#                                     else ast.Name(id=str(value))
-#                                 )
-#                             )
-#                         )
-#                     )  # 其他类型暂时使用 Name 作为占位
-#                     for value in setting_dict.values()
-#                 ]
-#                 node.value = ast.Dict(keys=keys, values=values)
-
-#         return node
-
-
-# def update_setting_data(file_path, new_setting_data_value):
-#     with open(file_path, "r", encoding="utf-8") as file:
-#         source = file.read()
-
-#     tree = ast.parse(source)
-
-#     # 使用自定义的 AST Transformer
-#     transformer = UpdateLoadValue(new_setting_data_value)
-
-#     transformer.visit(tree)
-
-#     # 将修改后的 AST 转换回源代码
-#     updated_source = astor.to_source(tree)
-
-#     # 将更新后的代码写回文件
-#     with open(file_path, "w", encoding="utf-8") as file:
-#         file.write(updated_source)
 
 
 class UpdateLoadValue(ast.NodeTransformer):

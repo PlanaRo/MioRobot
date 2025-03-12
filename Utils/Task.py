@@ -6,7 +6,7 @@ class Task:
     用于异步任务处理
     """
 
-    def __init__(self, guid) -> None:
+    def __init__(self, guid: str) -> None:
         # 为任务设置唯一标识符
         self.echo = guid
         # 获取当前事件循环
@@ -14,7 +14,7 @@ class Task:
         # 创建一个Future对象
         self.fut = loop.create_future()
 
-    def set_result(self, JObject):
+    def setResult(self, JObject):
         try:
             # 设置Future对象的值，标志任务完成
             self.fut.set_result(JObject)

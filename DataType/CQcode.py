@@ -47,7 +47,7 @@ class CQcode:
         return f"[CQ:record,file={file}]"
 
     @staticmethod
-    def vidoe(file):
+    def video(file):
         """
         file: 视频文件地址
         """

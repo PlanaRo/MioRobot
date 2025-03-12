@@ -1,4 +1,7 @@
-class RequestEvent:
+from Models.Event.BaseEvent import BaseEvent
+
+
+class RequestEvent(BaseEvent):
 
     def __init__(self, data: dict):
 

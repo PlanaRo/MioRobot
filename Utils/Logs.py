@@ -1,3 +1,4 @@
+from typing import Any
 import colorama
 
 # 自动重置颜色
@@ -48,14 +49,14 @@ class Log:
             Log.pluginErrorList[pluginName].append(msg)
 
     @staticmethod
-    def adapter(msg: str) -> None:
+    def adapter(msg: Any) -> None:
         """
         输出收到的上报消息
         """
         print("\n上报消息:", msg)
 
     @staticmethod
-    def apiResponse(msg: str) -> None:
+    def apiResponse(msg: Any) -> None:
         """
         输出API返回的消息
         """

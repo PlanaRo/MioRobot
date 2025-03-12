@@ -1,29 +1,36 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 import inspect
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
-from DataType.MessageData import MessageData
+from Models.Event.BaseEvent import BaseEvent
+from Models.Event.EventType import EventType
 from Utils.Logs import Log
-
-
-class EventType(Enum):
-    GroupMessage = "GroupMessage"
-    FriendMessage = "FriendMessage"
 
 
 @dataclass
 class PluginSetting:
     # 插件优先级
-    _priority: int = 0
+    _priority: int
     # 是否启用
-    _enable: bool = True
+    _enable: bool
     # 监听事件列表
-    _event: list[EventType] = []
+    _event: list[EventType]
     # 是否在菜单隐藏,为True时将不会在简易菜单中显示
-    _hide: bool = True
+    _hide: bool
+
+    def __init__(
+        self,
+        priority: int,
+        enable: bool,
+        event: list[EventType],
+        hide: bool,
+    ) -> None:
+        self._priority = priority
+        self._enable = enable
+        self._event = event
+        self._hide = hide
 
     @property
     def priority(self) -> int:
@@ -58,12 +65,17 @@ class PluginSetting:
         self._hide = hide
 
     @classmethod
-    def loadFromJson(cls, jsonData: str | bytes | bytearray) -> "PluginSetting":
+    def loadFromJson(cls, jsonData: dict) -> "PluginSetting":
         """
         从JSON数据中加载插件设置
         """
-        data: dict[str, Any] = json.loads(jsonData)
-        return cls(**data)
+        if "event" in jsonData.keys():
+            jsonData["event"] = cls.loadEvent(jsonData["event"])
+        return cls(**jsonData)
+
+    @staticmethod
+    def loadEvent(eventList: list[str]):
+        return [EventType(event) for event in eventList]
 
 
 @dataclass
@@ -100,12 +112,11 @@ class DeveloperSetting:
         self._runtimeThreshold = runtimeThreshold
 
     @classmethod
-    def loadFromJson(cls, jsonData: str | bytes | bytearray) -> "DeveloperSetting":
+    def loadFromJson(cls, jsonData: dict) -> "DeveloperSetting":
         """
         从JSON数据中加载插件设置
         """
-        data: dict[str, Any] = json.loads(jsonData)
-        return cls(**data)
+        return cls(**jsonData)
 
 
 class PluginReturnMessage(ABC):
@@ -119,9 +130,13 @@ class PluginReturnMessage(ABC):
     def updata(self):
         self.triggered = True
         self.triggerNumber += 1
-
-    def setInterrupt(self):
         self.interrupt = True
+
+    def setInterrupt(self, state: bool):
+        """
+        设置中断
+        """
+        self.interrupt = state
 
     def isInterrupt(self) -> bool:
         return self.interrupt
@@ -210,10 +225,6 @@ class Plugin(ABC):
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
 
-    # @classmethod
-    # def registerPlugin(cls, subclass):
-    #     cls.subclasses.append(subclass)
-
     @abstractmethod
     def init(self) -> None:
         """
@@ -224,7 +235,7 @@ class Plugin(ABC):
     @abstractmethod
     async def run(
         self,
-        messageData: MessageData,
+        messageData: BaseEvent,
     ) -> PluginReturnMessage:
         """
         此方法用于插件运行
@@ -235,6 +246,7 @@ class Plugin(ABC):
     def dispose(self) -> None:
         """
         此方法用于释放内存等资源
+        对于需要临时存储数据的插件，请重写此方法，用于释放内存等资源
         """
         pass
 
@@ -250,28 +262,16 @@ class Plugin(ABC):
             # 读取配置文件
             with open(jsonFilePath, "r") as configFile:
                 configData = json.load(configFile)
-                self._setting = PluginSetting.loadFromJson(
-                    configData.get("setting", {})
-                )
-                self._developerSetting = DeveloperSetting.loadFromJson(
+                self.author = configData.get("author", "未提供作者信息")
+                self.name = configData.get("name", "未提供名称")
+                self.displayName = configData.get("display_name", "未提供显示名称")
+                self.description = configData.get("description", "未提供描述")
+                self.version = configData.get("version", "未提供版本号")
+                self.setting = PluginSetting.loadFromJson(configData.get("setting", {}))
+                self.developerSetting = DeveloperSetting.loadFromJson(
                     configData.get("developer_setting", {})
                 )
             return True  # 成功返回True
         except Exception as e:
             Log.error(f"错误信息{e}")
             return False  # 失败返回False
-
-
-# def register(cls):
-#     """
-#     注册插件：
-#     @register
-#     class MyPlugin(Plugin):
-#         pass
-#     """
-#     try:
-#         Plugin.register(cls)
-#         return cls
-
-#     except Exception as e:
-#         Log.error(f"插件注册失败：{e}")

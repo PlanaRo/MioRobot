@@ -3,7 +3,7 @@ import traceback
 from typing import Callable
 
 
-def error_handler(code: Callable):
+def errorHandler(code: Callable):
     """
     错误处理装饰器
     :param code: 被装饰的函数
@@ -35,7 +35,7 @@ def error_handler(code: Callable):
 
 if __name__ == "__main__":
 
-    @error_handler
+    @errorHandler
     def test(a):
         a = 1 / 0
         print(a)
