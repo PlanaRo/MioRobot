@@ -39,12 +39,13 @@ class CoreServer:
             await WebsocketControl.connect(config)
 
             self.websocket = WebsocketControl.websocket
-            # 初始化群管理类
-            GroupControl.init()
+
             # 导入单例插件类
             self.plugin = PluginLoaderControl
             # 调用插件的初始化方法
             self.plugin.loading()
+            # 初始化群管理类
+            GroupControl.init()
             # 调用接受方法
             await self.receive()
 
@@ -75,12 +76,12 @@ class CoreServer:
             )
 
         except Exception as e:
-            # exc_type, exc_value, exc_traceback = sys.exc_info()
-            # tb = traceback.extract_tb(exc_traceback)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = traceback.extract_tb(exc_traceback)
             # 查看详细错误信息
-            # Log.error(
-            #     f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
-            # )
+            Log.error(
+                f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
+            )
             Log.error("http管理开启失败，请检查配置")
             Log.info("将在10秒后尝试重新连接")
             time.sleep(10)

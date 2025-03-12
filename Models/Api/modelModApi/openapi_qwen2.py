@@ -342,16 +342,16 @@ model, tokenizer = auto_mode_qwen.auto_load_model(model_path)
 # model = load_model_on_gpus("THUDM/chatglm2-6b", num_gpus=2)
 
 # 是否给模型添加lora
-is_loder_lora = False
+is_loader_lora = False
 # 是否加载m3e模型
-is_loder_m3e = False
-if is_loder_lora:
+is_loader_m3e = False
+if is_loader_lora:
     # lora路径
     adapter_path = []
     for adapter in adapter_path:
         model = auto_mode_qwen.load_adapter(model, adapter)
 
-if is_loder_m3e:
+if is_loader_m3e:
     embeddings_model = SentenceTransformer(embeddings_model_path, device="cuda")
 
 model.eval()

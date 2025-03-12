@@ -1,13 +1,14 @@
 import os
 from typing import Any, Type
 from Models.Event.BaseEvent import BaseEvent
+from Models.Event.GroupMessageEvent import GroupMessageEvent
 import Plugin as BasePlugin
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
-from DataType.MessageData import MessageData
 import traceback
 import sys
 import time
+from GroupControl import GroupControl
 
 
 class PluginLoader:
@@ -39,6 +40,28 @@ class PluginLoader:
     def __init__(self) -> None:
         if not hasattr(self, "_initialized"):  # 防止__init__方法的重复调用
             self._initialized = True
+
+    def getPlugins(self) -> dict[str, dict]:
+        """
+        获取插件设置数据
+        """
+        pluginsSettingData = {}
+
+        for plugin in self.pluginInstanceList.keys():
+            pluginsSettingData[plugin.name] = plugin.getPluginStatus()
+        return pluginsSettingData
+
+    def updataPluginSetting(
+        self, pluginName: str, setting: BasePlugin.PluginSetting
+    ) -> None:
+        """
+        更新插件设置
+        """
+        for plugin in self.pluginInstanceList.keys():
+            if plugin.name == pluginName:
+                plugin.updateSetting(setting)
+                break
+        PluginLoaderControl.reload()
 
     def loading(self, reload: bool = False) -> None:
         """
@@ -120,6 +143,14 @@ class PluginLoader:
         for plugin in self.pluginInstanceList.keys():
 
             try:
+                if not plugin.setting.enable:
+                    continue
+
+                if isinstance(messageData, GroupMessageEvent):
+                    if not GroupControl.isEnable(messageData.Group):
+                        continue
+                    if not GroupControl.isEnablePlugin(messageData.Group, plugin.name):
+                        continue
 
                 # 判断是否在插件的监听事件中
                 if postType in plugin.setting.event:

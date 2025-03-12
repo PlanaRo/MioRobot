@@ -77,6 +77,14 @@ class PluginSetting:
     def loadEvent(eventList: list[str]):
         return [EventType(event) for event in eventList]
 
+    def toJson(self) -> dict:
+        return {
+            "priority": self.priority,
+            "enable": self.enable,
+            "event": [event.value for event in self.event],
+            "hide": self.hide,
+        }
+
 
 @dataclass
 class DeveloperSetting:
@@ -117,6 +125,13 @@ class DeveloperSetting:
         从JSON数据中加载插件设置
         """
         return cls(**jsonData)
+
+    def toJson(self) -> dict:
+        return {
+            "debug": self.debug,
+            "countRuntime": self.countRuntime,
+            "runtimeThreshold": self.runtimeThreshold,
+        }
 
 
 class PluginReturnMessage(ABC):
@@ -275,3 +290,62 @@ class Plugin(ABC):
         except Exception as e:
             Log.error(f"错误信息{e}")
             return False  # 失败返回False
+
+    def getPluginStatus(self):
+        """
+        获取插件基础信息和设置
+        """
+        return {
+            "author": self.author,
+            "name": self.name,
+            "displayName": self.displayName,
+            "description": self.description,
+            "version": self.version,
+            "setting": self.setting.toJson(),
+            "developerSetting": self.developerSetting.toJson(),
+        }
+
+    def setStatus(self, status: bool):
+        """
+        设置插件开关状态
+        """
+        # 获取配置文件路径
+        currentClass = self.__class__
+        filePath = inspect.getfile(currentClass)
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+
+        try:
+            with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
+                configData = json.load(configFile)
+
+                configData["setting"]["enable"] = status
+                # 指针回到文件开头
+                configFile.seek(0)
+                # 清空文件
+                configFile.truncate()
+
+                configFile.write(configData)
+            return True
+        except Exception as e:
+            Log.error(f"错误信息{e}")
+            return False
+
+    def updateSetting(self, setting: PluginSetting):
+        """
+        更新插件设置
+        """
+        # 获取配置文件路径
+        currentClass = self.__class__
+        filePath = inspect.getfile(currentClass)
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+
+        try:
+            with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
+                configData = json.load(configFile)
+                configData["setting"] = setting.toJson()
+                configFile.seek(0)
+                configFile.truncate()
+                configFile.write(configData)
+        except Exception as e:
+            Log.error(f"错误信息{e}")
+            return False
