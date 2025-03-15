@@ -55,7 +55,7 @@ async def getGroupList():
 
 
 @appHttp.post("/group_list")
-async def updataGroupList(request: Request):
+async def updateGroupList(request: Request):
     """
     修改群启用状态
     """
@@ -204,12 +204,12 @@ async def getPluginList():
 
 
 @appHttp.post("/plugin_list")
-async def updataPluginSetting(request: Request):
+async def updatePluginSetting(request: Request):
     """
     管理插件
     """
     post_data = await request.json()
     pluginName = post_data.get("plugin_name")
     settingData = post_data.get("setting_data")
-    PluginLoaderControl.updataPluginSetting(pluginName, settingData)
+    PluginLoaderControl.updatePluginSetting(pluginName, settingData)
     return {"message": "OK"}

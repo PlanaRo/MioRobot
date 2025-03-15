@@ -2,6 +2,7 @@ import os
 from typing import Any, Type
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.GroupMessageEvent import GroupMessageEvent
+from Models.Context.MessageContext import MessageContext
 import Plugin as BasePlugin
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
@@ -51,7 +52,13 @@ class PluginLoader:
             pluginsSettingData[plugin.name] = plugin.getPluginStatus()
         return pluginsSettingData
 
-    def updataPluginSetting(
+    def getPluginsName(self) -> list[str]:
+        pluginsName = []
+        for plugin in self.pluginInstanceList.keys():
+            pluginsName.append(plugin.name)
+        return pluginsName
+
+    def updatePluginSetting(
         self, pluginName: str, setting: BasePlugin.PluginSetting
     ) -> None:
         """
@@ -127,15 +134,20 @@ class PluginLoader:
 
         Log.info("重载成功")
 
+    def clearMemory(self) -> None:
+        Log.info("正在清理内存")
+        for plugin in self.pluginInstanceList.keys():
+            plugin.dispose()
+
     async def callBack(
         self,
-        messageData: BaseEvent,
+        messageContext: MessageContext[BaseEvent],
     ) -> None:
         """
         调用插件
         """
 
-        postType = messageData.Post_Type
+        postType = messageContext.Event.Post_Type
 
         # 统计插件调用的时间
         startTime = time.time()
@@ -146,23 +158,25 @@ class PluginLoader:
                 if not plugin.setting.enable:
                     continue
 
-                if isinstance(messageData, GroupMessageEvent):
-                    if not GroupControl.isEnable(messageData.Group):
+                if isinstance(messageContext.Event, GroupMessageEvent):
+                    if not GroupControl.isEnable(messageContext.Event.Group):
                         continue
-                    if not GroupControl.isEnablePlugin(messageData.Group, plugin.name):
+                    if not GroupControl.isEnablePlugin(
+                        messageContext.Event.Group, plugin.name
+                    ):
                         continue
 
                 # 判断是否在插件的监听事件中
                 if postType in plugin.setting.event:
 
-                    pluginReturnMessage = await plugin.run(messageData)
+                    await plugin.run(messageContext)
 
                     # 统计插件运行时间
                     runtime = time.time() - startTime
                     # 将插件运行时间添加到字典中
                     self.pluginCallTime[plugin.name] = runtime
                     # 判断插件是否触发,如果触发则取消后续插件的运行
-                    if pluginReturnMessage.isInterrupt():
+                    if messageContext.Command.Trigger.isTriggered():
                         break
 
             except Exception as e:

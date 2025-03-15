@@ -1,0 +1,16 @@
+{
+    "name": "插件热重载",
+    "display_name" : "插件热重载",
+    "version": "1.0.0",
+    "description": "插件热重载",
+    "author":"sansan",
+    "setting":{
+        "enable": true,
+        "priority": 0,
+        "event":["GroupMessage"],
+        "hide":false
+    },
+    "developer_setting": {
+
+    }
+}

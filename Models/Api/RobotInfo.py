@@ -14,4 +14,4 @@ class RobotInfo:
     async def getGroupList() -> str | dict | None:
         param = {"no_cache": False}
         args = RequestApi("get_group_list", param)
-        return await ApiAdapter.sendActionApi(args, 5)
+        return await ApiAdapter.sendActionApi(args, 10)

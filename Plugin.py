@@ -2,11 +2,16 @@ from abc import ABC, abstractmethod
 import inspect
 import json
 import os
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.EventType import EventType
+from Models.Context.MessageContext import MessageContext
 from Utils.Logs import Log
+from functools import singledispatchmethod
+from typing import TypeVar, Generic
+
+
+T = TypeVar("T", bound=BaseEvent)
 
 
 @dataclass
@@ -134,32 +139,6 @@ class DeveloperSetting:
         }
 
 
-class PluginReturnMessage(ABC):
-    # 是否触发了事件
-    triggered: bool = False
-    # 是否中断
-    interrupt: bool = False
-    # 触发的次数
-    triggerNumber: int = 0
-
-    def updata(self):
-        self.triggered = True
-        self.triggerNumber += 1
-        self.interrupt = True
-
-    def setInterrupt(self, state: bool):
-        """
-        设置中断
-        """
-        self.interrupt = state
-
-    def isInterrupt(self) -> bool:
-        return self.interrupt
-
-    def isTriggered(self) -> bool:
-        return self.triggered
-
-
 class Plugin(ABC):
 
     # 插件作者
@@ -247,13 +226,15 @@ class Plugin(ABC):
         """
         pass
 
+    @singledispatchmethod
     @abstractmethod
     async def run(
         self,
-        messageData: BaseEvent,
-    ) -> PluginReturnMessage:
+        context: MessageContext,
+    ):
         """
         此方法用于插件运行
+        请使用@singledispatchmethod进行任务分发
         """
         pass
 
@@ -275,7 +256,7 @@ class Plugin(ABC):
 
         try:
             # 读取配置文件
-            with open(jsonFilePath, "r") as configFile:
+            with open(jsonFilePath, "r", encoding="utf-8") as configFile:
                 configData = json.load(configFile)
                 self.author = configData.get("author", "未提供作者信息")
                 self.name = configData.get("name", "未提供名称")

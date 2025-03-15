@@ -1,9 +1,7 @@
 from Models.Api.RobotInfo import RobotInfo
-import websockets
 import json
 import asyncio
 from Utils.Logs import Log
-from Utils.WebsocketControl import WebsocketControl
 
 
 class GroupControl:
@@ -13,21 +11,31 @@ class GroupControl:
 
     # 群列表,群号为键,群是否开启为值
     groupList: dict = {}
-    websocket: websockets.WebSocketClientProtocol
 
     @staticmethod
-    def init():
+    def init(pluginList: list[str]):
         """
         初始化群控制类,即通过接口获取群数据,并更新群列表
         :param websocket: websocket连接
         """
-        GroupControl.websocket = WebsocketControl.websocket
-
         loop = asyncio.get_event_loop()
-        loop.create_task(GroupControl.getGroupData())
+        loop.create_task(GroupControl.update(pluginList))
 
     @staticmethod
-    async def getGroupData():
+    async def update(pluginList: list[str]):
+        """
+        更新群列表
+        :param pluginList: 插件名列表
+        """
+        # 通过接口获取群数据
+        data = await GroupControl.getGroupData()
+        if data is None:
+            return
+        GroupControl.updateGroupData(data, pluginList)
+        Log.info("获取群数据成功")
+
+    @staticmethod
+    async def getGroupData() -> dict | None:
         """
         获取群数据
         :return: 群数据
@@ -35,7 +43,7 @@ class GroupControl:
         # 通过接口获取群数据
         rowGroupData = await RobotInfo.getGroupList()
         if rowGroupData is not None:
-            GroupControl.updateGroupData(rowGroupData)  # type: ignore
+            return rowGroupData  # type: ignore
         else:
             Log.error("获取群数据失败")
 
@@ -107,7 +115,7 @@ class GroupControl:
                 "group_name": group["group_name"],
                 "status": {
                     "enable": isEnable,
-                    "plugins": {pluginName: False for pluginName in pluginList},
+                    "plugins": {pluginName: True for pluginName in pluginList},
                 },
             }
             for group in groupList
@@ -117,13 +125,18 @@ class GroupControl:
         for i in range(len(newGroupList)):
             for item in groupDataList:
                 if newGroupList[i]["group_id"] == item["group_id"]:
+                    newGroupList[i]["status"]["enable"] = item["status"]["enable"]
+                    newGroupListKeys = {
+                        k: item["status"]["plugins"][k]
+                        for k in newGroupList[i]["status"]["plugins"]
+                        if k in item["status"]["plugins"]
+                    }
+                    newGroupList[i]["status"]["plugins"].update(newGroupListKeys)
 
                     GroupControl.groupList[str(newGroupList[i]["group_id"])] = {
-                        "enable": item["status"]["enable"],
-                        "plugins": item["status"]["plugins"],
+                        "enable": newGroupList[i]["status"]["enable"],
+                        "plugins": newGroupList[i]["status"]["plugins"],
                     }
-
-                    newGroupList[i]["status"] = item["status"]
 
         # 更新文件中的群数据
         with open("Cache/GroupList.json", "w", encoding="utf-8") as f:

@@ -43,7 +43,6 @@ class EventAdapter:
                     # 消息类型,private或group
                     Message_Type = data.get("message_type", None)
                     if Message_Type == "group":
-                        from GroupControl import GroupControl
 
                         data = GroupMessageEvent(data)  # type: ignore
 

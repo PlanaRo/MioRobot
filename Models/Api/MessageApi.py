@@ -105,7 +105,6 @@ class MessageApi:
 
     @staticmethod
     async def sendPrivateMessage(
-        websocket: object,
         MessageData: PrivateMessageEvent,
         message: Union[str, list, list[dict]],
         is_node: bool = False,

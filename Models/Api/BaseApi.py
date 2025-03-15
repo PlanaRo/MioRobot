@@ -31,7 +31,7 @@ class ApiAdapter:
 
     # 发送API请求
     @staticmethod
-    async def sendActionApi(api: RequestApi, timeOut: int = 3) -> str | dict | None:
+    async def sendActionApi(api: RequestApi, timeOut: int = 5) -> str | dict | None:
         # 构建API消息
         msg = json.dumps(api, default=lambda obj: obj.__dict__, ensure_ascii=False)
         # 创建任务
