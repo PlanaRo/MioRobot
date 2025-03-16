@@ -30,6 +30,14 @@
 
 一个简单的 QQ 机器人处理消息的框架，可自定义插件遵循 onebot 标准
 
+## 优势
+
+1.框架全部模块具有完整的内嵌文档说明和类型注释
+
+2.使用抽象类规范插件编写，助力编写简单高效的插件
+
+3.完善的相关服务支持，框架支持使用app进行管理
+
 ## 环境
 
 - python=3.10
@@ -71,14 +79,19 @@ DataType	数据类型文件夹
    ├─GroupMassageData.py	群消息数据类型
    └─PrivateMessageDate.py 	私聊消息数据类型
 
-Plugin	插件文件夹
+Plugins	插件文件夹
    ├─plugin_1
    └─plugin_2
 
 Models	必要模块
    ├─Api	所有消息发送api模块
    │   └─MessageApi.py	消息发送的模块
-   │
+   │ 
+   ├─Context	构建消息上下文
+   │ 	├─GroupMessageContext.py	群消息上下文
+   │   	├─MessageContext.py 	上下文基类
+   │	└─MessageContextBuild	将消息构建为对应上下文
+   │ 
    └─Event	所有事件处理的模块
       ├─EventContral.py		事件处理中心
       ├─GroupMessageEvent.py 	处理群聊事件
@@ -88,13 +101,12 @@ Models	必要模块
       └─RequestEvent.py		处理请求事件
 
 Net	网络处理相关文件
-   └─Receives.py	处理websocket请求
-
-log.py	日志类
-plugins.py	插件基类
-plugin_loader.py	插件加载器
-const.py	常量类
-init_config.py	初始化设置类
+   ├─CoreServer.py	处理websocket请求,启动api接口
+   └─AppHttp.py	api服务
+Utils	工具文件
+Plugin.py	插件基类
+PluginLoader.py	插件加载器
+config.py	初始化设置类
 main.py	主程序
 ```
 
