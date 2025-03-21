@@ -1,3 +1,4 @@
+import random
 from torchvision.transforms import functional
 import sys
 
@@ -108,16 +109,19 @@ async def do_super_resolution(
     return result.getvalue()
 
 
-# async def superImage():
-#     with open(
-#         "C:/Users/三三sama/Desktop/小白不留行_芙宁娜_你与我的明天_有水印.png", "rb"
-#     ) as f:
-#         imageDate = f.read()
-#     imageDate = await do_super_resolution(imageDate, resize=True)
+async def superImage():
+    with open(
+        "C:\\Users\\三三sama\\Downloads\\vivo办公套件\\1716960603784.jpg",
+        "rb",
+    ) as f:
+        imageDate = f.read()
+    imageDate = await do_super_resolution(imageDate, resize=True)
 
-#     with open("C:/Users/三三sama/Desktop/testimage3.png", "wb") as f:
-#         f.write(imageDate)
+    with open(
+        "C:/Users/三三sama/Desktop/" + str(random.randint(1, 1000000)) + ".png", "wb"
+    ) as f:
+        f.write(imageDate)
 
 
-# if __name__ == "__main__":
-#     asyncio.run(superImage())
+if __name__ == "__main__":
+    asyncio.run(superImage())

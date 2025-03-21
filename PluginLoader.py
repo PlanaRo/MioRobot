@@ -3,7 +3,7 @@ from typing import Any, Type
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.GroupMessageEvent import GroupMessageEvent
 from Models.Context.MessageContext import MessageContext
-import Plugin as BasePlugin
+from Plugin import Plugin, PluginSetting
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
 import traceback
@@ -20,7 +20,7 @@ class PluginLoader:
     # 单例模式
     _instance = None
     # 插件实例字典
-    pluginInstanceList: dict[BasePlugin.Plugin, int] = {}
+    pluginInstanceList: dict[Plugin, int] = {}
 
     # 加载的插件数量
     pluginNumber = 0
@@ -53,33 +53,42 @@ class PluginLoader:
         return pluginsSettingData
 
     def getPluginsName(self) -> list[str]:
+        """
+        获取插件名称列表
+        @return: 插件名称列表
+        """
         pluginsName = []
         for plugin in self.pluginInstanceList.keys():
             pluginsName.append(plugin.name)
         return pluginsName
 
-    def updatePluginSetting(
-        self, pluginName: str, setting: BasePlugin.PluginSetting
-    ) -> None:
+    def updatePluginSetting(self, pluginName: str, setting: PluginSetting) -> bool:
         """
         更新插件设置
+        @param pluginName: 插件名称
+        @param setting: 插件设置
+        @return: None
         """
+        flag: bool = False
+
         for plugin in self.pluginInstanceList.keys():
             if plugin.name == pluginName:
                 plugin.updateSetting(setting)
+                flag = True
                 break
         PluginLoaderControl.reload()
+        return flag
 
     def loading(self, reload: bool = False) -> None:
         """
         加载插件
+        @param reload: 是否重新加载
+        @return: None
         """
         # 统计加载插件的时间
         startTime = time.time()
         # 扫描获取所有插件类
-        subclasses: list[Type[BasePlugin.Plugin]] = findSubclasses(
-            "Plugins", BasePlugin.Plugin, reload
-        )
+        subclasses: list[Type[Plugin]] = findSubclasses("Plugins", Plugin, reload)
 
         for subclass in subclasses:
             try:
@@ -135,6 +144,9 @@ class PluginLoader:
         Log.info("重载成功")
 
     def clearMemory(self) -> None:
+        """
+        调用插件的dispose方法,清理内存
+        """
         Log.info("正在清理内存")
         for plugin in self.pluginInstanceList.keys():
             plugin.dispose()
@@ -145,10 +157,10 @@ class PluginLoader:
     ) -> None:
         """
         调用插件
+        @param messageContext: 消息上下文
         """
-
+        # 获取消息类型
         postType = messageContext.Event.Post_Type
-
         # 统计插件调用的时间
         startTime = time.time()
         # 遍历插件回调函数对象字典
@@ -159,8 +171,11 @@ class PluginLoader:
                     continue
 
                 if isinstance(messageContext.Event, GroupMessageEvent):
+                    # 判断群组是否启用
                     if not GroupControl.isEnable(messageContext.Event.Group):
                         continue
+
+                    # 判断群组插件是否启用
                     if not GroupControl.isEnablePlugin(
                         messageContext.Event.Group, plugin.name
                     ):
@@ -168,9 +183,8 @@ class PluginLoader:
 
                 # 判断是否在插件的监听事件中
                 if postType in plugin.setting.event:
-
+                    # 调用插件
                     await plugin.run(messageContext)
-
                     # 统计插件运行时间
                     runtime = time.time() - startTime
                     # 将插件运行时间添加到字典中

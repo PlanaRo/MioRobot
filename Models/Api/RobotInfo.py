@@ -12,6 +12,9 @@ class RobotInfo:
 
     @staticmethod
     async def getGroupList() -> str | dict | None:
+        """
+        获取群列表
+        """
         param = {"no_cache": False}
         args = RequestApi("get_group_list", param)
         return await ApiAdapter.sendActionApi(args, 10)

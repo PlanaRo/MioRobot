@@ -24,6 +24,10 @@ class EventAdapter:
         RequestEvent,
         MetaEvent,
     ]:
+        """
+        事件控制
+        用于将消息解析为对应的事件对象
+        """
 
         try:
             # 用于处理api返回的json数据

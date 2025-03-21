@@ -148,7 +148,7 @@ async def getSystemInfo():
         "system_memory": memory,
         "cpu_model": processor_name,
         "start_time": time,
-        "eisk": int(o_usage.total / (1024.0**3)),
+        "disk": int(o_usage.total / (1024.0**3)),
     }
 
 

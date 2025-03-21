@@ -8,7 +8,7 @@ from Models.Event.EventType import EventType
 from Models.Context.MessageContext import MessageContext
 from Utils.Logs import Log
 from functools import singledispatchmethod
-from typing import TypeVar, Generic
+from typing import Any, TypeVar, Generic
 
 
 T = TypeVar("T", bound=BaseEvent)
@@ -79,7 +79,10 @@ class PluginSetting:
         return cls(**jsonData)
 
     @staticmethod
-    def loadEvent(eventList: list[str]):
+    def loadEvent(eventList: list[str]) -> list[EventType]:
+        """
+        从JSON数据中加载事件列表
+        """
         return [EventType(event) for event in eventList]
 
     def toJson(self) -> dict:
@@ -272,9 +275,11 @@ class Plugin(ABC):
             Log.error(f"错误信息{e}")
             return False  # 失败返回False
 
-    def getPluginStatus(self):
+    def getPluginStatus(self) -> dict[str, Any]:
         """
         获取插件基础信息和设置
+        返回一个字典，包含插件的基础信息和设置
+        @return dict
         """
         return {
             "author": self.author,
@@ -286,9 +291,14 @@ class Plugin(ABC):
             "developerSetting": self.developerSetting.toJson(),
         }
 
-    def setStatus(self, status: bool):
+    def setStatus(self, status: bool) -> bool:
         """
         设置插件开关状态
+        返回True表示设置成功，False表示设置失败
+        @param
+            status: bool
+
+        @return bool
         """
         # 获取配置文件路径
         currentClass = self.__class__
@@ -311,9 +321,15 @@ class Plugin(ABC):
             Log.error(f"错误信息{e}")
             return False
 
-    def updateSetting(self, setting: PluginSetting):
+    def updateSetting(self, setting: PluginSetting) -> bool:
         """
         更新插件设置
+        返回True表示设置成功，False表示设置失败
+
+        @param
+            setting: PluginSetting
+
+        @return bool
         """
         # 获取配置文件路径
         currentClass = self.__class__
@@ -323,10 +339,15 @@ class Plugin(ABC):
         try:
             with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
                 configData = json.load(configFile)
+
                 configData["setting"] = setting.toJson()
+                # 指针回到文件开头
                 configFile.seek(0)
+                # 清空文件
                 configFile.truncate()
+
                 configFile.write(configData)
+            return True
         except Exception as e:
             Log.error(f"错误信息{e}")
             return False

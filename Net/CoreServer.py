@@ -36,7 +36,6 @@ class CoreServer:
         try:
             # 连接websocket
             await WebsocketControl.connect(config)
-
             # 导入单例插件类
             self.plugin = PluginLoaderControl
             # 调用插件的初始化方法
@@ -59,6 +58,9 @@ class CoreServer:
             await self.start()
 
     async def httpStart(self):
+        """
+        开启http管理服务
+        """
         try:
             Log.info("正在开启api服务......")
             loop = asyncio.get_running_loop()
@@ -100,12 +102,12 @@ class CoreServer:
             messageData = EventAdapter.EventControl(context)
             # 构建消息上下文
             messageContext = MessageContextBuild.build(messageData)
-
+            # 过滤错误消息
             if messageContext is None:
                 continue
 
             try:
-
+                # 调用插件
                 await self.plugin.callBack(messageContext)
 
             except Exception as e:

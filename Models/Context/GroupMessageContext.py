@@ -21,7 +21,7 @@ class GroupCommands(Commands[GroupMessageEvent]):
         self.Trigger.update()
         await MessageApi.sendGroupMessage(self.messageData, message)
 
-    async def SendPrivateMessage(self, message):
+    async def SendPrivateMessage(self, message: Union[str, list, list[dict]]):
         """
         发送私聊消息
         未实现
@@ -29,7 +29,7 @@ class GroupCommands(Commands[GroupMessageEvent]):
         pass
         # await MessageApi.sendPrivateMessage(self.messageData, message)
 
-    async def Reply(self, message):
+    async def Reply(self, message: Union[str, list, list[dict]]):
         """
         快捷回复
         """

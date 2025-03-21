@@ -14,14 +14,14 @@ class Log:
     pluginErrorList: dict[str, list[str]] = {}
 
     @staticmethod
-    def info(msg: str) -> None:
+    def info(msg: Any) -> None:
         """
         输出普通信息
         """
         print(f"{colorama.Fore.GREEN}\n信息:{msg}")
 
     @staticmethod
-    def warning(msg: str) -> None:
+    def warning(msg: Any) -> None:
         """
         输出警告信息
         """
@@ -29,18 +29,17 @@ class Log:
         print(f"{colorama.Fore.YELLOW}\n警告:{msg}")
 
     @staticmethod
-    def error(msg: str) -> None:
+    def error(msg: Any) -> None:
         """
         输出错误信息
         """
         print(f"{colorama.Fore.RED}\n错误:{msg}")
 
     @staticmethod
-    def pluginError(pluginName: str, msg: str) -> None:
+    def pluginError(pluginName: str, msg: Any) -> None:
         """
         输出并记录插件错误信息
         """
-        # print(colorama.Fore.RED + "\n错误:", msg)
         print(f"{colorama.Fore.RED}\n错误:{msg}")
         if pluginName in Log.pluginErrorList:
             Log.pluginErrorList[pluginName].append(msg)
