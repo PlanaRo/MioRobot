@@ -1,6 +1,6 @@
 from functools import singledispatchmethod
 from Models.Context.GroupMessageContext import GroupMessageContext
-from Plugin import Plugin
+from Core.Plugin import Plugin
 
 
 class MyPlugin(Plugin):

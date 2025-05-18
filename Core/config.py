@@ -7,7 +7,7 @@ class Config:
     """
 
     def __init__(self):
-        with open("config.json") as jsonFile:
+        with open("Cache\config.json") as jsonFile:
             jsonData = json.load(jsonFile)
 
         self.__setData(jsonData)

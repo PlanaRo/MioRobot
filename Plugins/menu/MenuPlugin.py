@@ -1,4 +1,4 @@
-from Plugin import Plugin
+from Core.Plugin import Plugin
 from Plugins.menu.Menu import Menu
 from DataType.CQcode import CQcode
 import re

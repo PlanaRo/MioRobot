@@ -1,6 +1,6 @@
 import websockets
 from Utils.Logs import Log
-from config import Config
+from Core.config import Config
 
 
 class WebsocketControl:

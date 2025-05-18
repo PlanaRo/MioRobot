@@ -1,15 +1,15 @@
 import asyncio
 from Models.Context.MessageContextBuild import MessageContextBuild
-from config import Config
+from Core.config import Config
 from Utils.Logs import Log
 from Models.Event.EventControl import EventAdapter
-from GroupControl import GroupControl
+from Core.GroupControl import GroupControl
 import traceback
-from PluginLoader import PluginLoader, PluginLoaderControl
+from Core.PluginLoader import PluginLoader, PluginLoaderControl
 import sys
 import time
 import uvicorn
-from config import Config
+from Core.config import Config
 from Utils.WebsocketControl import WebsocketControl
 from Net.AppHttp import appHttp
 
@@ -73,7 +73,7 @@ class CoreServer:
                 ),
             )
 
-        except Exception as e:
+        except BaseException as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             tb = traceback.extract_tb(exc_traceback)
             # 查看详细错误信息

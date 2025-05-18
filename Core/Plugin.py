@@ -162,6 +162,7 @@ class Plugin(ABC):
         如果子类需要重写构造函数，请使用super().__init__()
         """
         self.loadConfig()
+        self.init()
 
     @property
     def author(self) -> str:
@@ -219,7 +220,6 @@ class Plugin(ABC):
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
 
-    @abstractmethod
     def init(self) -> None:
         """
         此方法用于插件初始化私有数据
@@ -252,7 +252,7 @@ class Plugin(ABC):
         """
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
 
         try:
             # 读取配置文件
@@ -293,7 +293,7 @@ class Plugin(ABC):
         # 获取配置文件路径
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
 
         try:
             with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
@@ -318,7 +318,7 @@ class Plugin(ABC):
         # 获取配置文件路径
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
 
         try:
             with open(jsonFilePath, "r+", encoding="utf-8") as configFile:

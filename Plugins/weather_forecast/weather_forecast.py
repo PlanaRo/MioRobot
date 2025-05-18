@@ -2,7 +2,7 @@ import base64
 import re
 from DataType.CQcode import CQcode
 from Models.Context.GroupMessageContext import GroupMessageContext
-from Plugin import Plugin
+from Core.Plugin import Plugin
 from Plugins.weather_forecast.weather import Weather
 from functools import singledispatchmethod
 
