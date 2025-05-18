@@ -252,7 +252,7 @@ class Plugin(ABC):
         """
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
 
         try:
             # 读取配置文件
@@ -293,7 +293,7 @@ class Plugin(ABC):
         # 获取配置文件路径
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
 
         try:
             with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
@@ -318,7 +318,7 @@ class Plugin(ABC):
         # 获取配置文件路径
         currentClass = self.__class__
         filePath = inspect.getfile(currentClass)
-        jsonFilePath = os.path.join(os.path.dirname(filePath), "Cache\config.json")
+        jsonFilePath = os.path.join(os.path.dirname(filePath), "config.json")
 
         try:
             with open(jsonFilePath, "r+", encoding="utf-8") as configFile:
