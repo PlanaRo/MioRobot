@@ -3,7 +3,7 @@ from typing import Any, Type
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.GroupMessageEvent import GroupMessageEvent
 from Models.Context.MessageContext import MessageContext
-from Plugin import Plugin, PluginSetting
+from Core.Plugin import Plugin, PluginSetting
 import Core.Plugin as BasePlugin
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
@@ -151,8 +151,8 @@ class PluginLoader:
             plugin.dispose()
 
     async def callBack(
-        self,
-        messageContext: MessageContext[BaseEvent],
+            self,
+            messageContext: MessageContext[BaseEvent],
     ) -> None:
         """
         调用插件
@@ -176,7 +176,7 @@ class PluginLoader:
 
                     # 判断群组插件是否启用
                     if not GroupControl.isEnablePlugin(
-                        messageContext.Event.Group, plugin.name
+                            messageContext.Event.Group, plugin.name
                     ):
                         continue
 
