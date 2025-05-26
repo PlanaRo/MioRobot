@@ -165,6 +165,7 @@ class Plugin(ABC):
         如果子类需要重写构造函数，请使用super().__init__()
         """
         self.loadConfig()
+        self.init()
 
     @property
     def author(self) -> str:
@@ -222,7 +223,6 @@ class Plugin(ABC):
     def developerSetting(self, developerSetting: DeveloperSetting) -> None:
         self._developerSetting = developerSetting
 
-    @abstractmethod
     def init(self) -> None:
         """
         此方法用于插件初始化私有数据

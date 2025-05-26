@@ -1,12 +1,10 @@
-from Plugin import Plugin
-from PluginLoader import PluginLoaderControl
+from Core.Plugin import Plugin
+from Core.PluginLoader import PluginLoaderControl
 from functools import singledispatchmethod
 from Models.Context.GroupMessageContext import GroupMessageContext
 
 
 class HotReloadPlugin(Plugin):
-    def init(self):
-        pass
 
     @singledispatchmethod
     async def run(self, context: GroupMessageContext):

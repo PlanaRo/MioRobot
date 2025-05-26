@@ -4,8 +4,8 @@ import json
 import psutil
 import getpass
 import platform
-from PluginLoader import PluginLoaderControl
-from GroupControl import GroupControl
+from Core.PluginLoader import PluginLoaderControl
+from Core.GroupControl import GroupControl
 from Models.Api.BaseApi import RequestApi, ApiAdapter
 from typing import cast
 from pynvml import (

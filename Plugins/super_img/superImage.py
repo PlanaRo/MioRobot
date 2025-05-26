@@ -3,7 +3,7 @@ from functools import singledispatchmethod
 import aiohttp
 from DataType.CQcode import CQcode
 from Models.Context.GroupMessageContext import GroupMessageContext
-from Plugin import Plugin
+from Core.Plugin import Plugin
 from Plugins.super_img.super import do_super_resolution
 
 

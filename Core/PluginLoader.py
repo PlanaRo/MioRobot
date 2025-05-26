@@ -4,12 +4,13 @@ from Models.Event.BaseEvent import BaseEvent
 from Models.Event.GroupMessageEvent import GroupMessageEvent
 from Models.Context.MessageContext import MessageContext
 from Plugin import Plugin, PluginSetting
+import Core.Plugin as BasePlugin
 from Utils.LoadModel import findSubclasses
 from Utils.Logs import Log
 import traceback
 import sys
 import time
-from GroupControl import GroupControl
+from Core.GroupControl import GroupControl
 
 
 class PluginLoader:
@@ -94,8 +95,6 @@ class PluginLoader:
             try:
                 # 实例化插件
                 pluginInstance = subclass()
-                # 初始化插件
-                pluginInstance.init()
                 # 添加插件到字典中
                 self.pluginInstanceList[pluginInstance] = (
                     pluginInstance.setting.priority

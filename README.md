@@ -56,7 +56,7 @@ conda activate mio_robot
 
 #### 第一步：
 
-修改 config.json 中的配置信息
+修改 Cache\config.json 中的配置信息
 
 #### 第二步：
 
