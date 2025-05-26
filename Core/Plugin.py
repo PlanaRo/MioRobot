@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
-import inspect
-import json
-import os
 from dataclasses import dataclass
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.EventType import EventType
 from Models.Context.MessageContext import MessageContext
 from Utils.Logs import Log
 from functools import singledispatchmethod
-from typing import Any, TypeVar, Generic
+from typing import Any, TypeVar
+import inspect
+import json
+import os
 
 
 T = TypeVar("T", bound=BaseEvent)

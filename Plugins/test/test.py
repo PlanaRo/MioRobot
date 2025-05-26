@@ -1,17 +1,18 @@
 from functools import singledispatchmethod
 from Models.Context.GroupMessageContext import GroupMessageContext
 from Core.Plugin import Plugin
+from Models.MessageChain.Message import Text
+from Models.MessageChain.MessageChain import MessageChain
 
 
 class MyPlugin(Plugin):
-    def init(self):
-        pass
 
     @singledispatchmethod
     async def run(self, context: GroupMessageContext):
 
         if context.Event.Message[0] == "测试":
-            await context.Command.Reply("测试成功")
+            messageChain = MessageChain().add(Text("测试成功"))
+            await context.Command.Reply(messageChain)
 
     def dispose(self) -> None:
         pass

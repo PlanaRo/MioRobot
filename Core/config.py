@@ -1,4 +1,5 @@
 import json
+import os
 
 
 class Config:
@@ -7,7 +8,19 @@ class Config:
     """
 
     def __init__(self):
-        with open("Cache\config.json") as jsonFile:
+
+        configPath = "Cache/config.json"
+
+        if not os.path.exists(configPath):
+            defaultConfig = {
+                "websocket": "ws://localhost:5800",
+                "token": "",
+                "managePort": "580",
+            }
+            with open(configPath, "w") as jsonFile:
+                json.dump(defaultConfig, jsonFile)
+
+        with open(configPath) as jsonFile:
             jsonData = json.load(jsonFile)
 
         self.__setData(jsonData)

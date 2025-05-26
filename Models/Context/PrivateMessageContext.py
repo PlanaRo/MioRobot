@@ -1,28 +1,17 @@
 from Models.Api.MessageApi import MessageApi
-from Models.Event.GroupMessageEvent import GroupMessageEvent
 from Models.Context.MessageContext import MessageContext, Commands
-from Models.MessageChain.Message import Text
+from Models.Event.PrivateMessageEvent import PrivateMessageEvent
 from Models.MessageChain.MessageChain import MessageChain
 from Utils.Trigger import MessageTrigger
 
 
-class GroupCommands(Commands[GroupMessageEvent]):
+class PrivateCommands(Commands[PrivateMessageEvent]):
     Trigger: MessageTrigger
-    messageData: GroupMessageEvent
+    messageData: PrivateMessageEvent
 
-    def __init__(self, event: GroupMessageEvent) -> None:
+    def __init__(self, event: PrivateMessageEvent) -> None:
         self.Trigger = MessageTrigger()
         self.messageData = event
-
-    async def SendGroupMessage(self, group_id: int, message: MessageChain):
-        """
-        发送群聊文本消息
-        Parameters:
-            group_id (int): 群号
-            message (MessageChain): 消息内容
-        """
-        self.Trigger.update()
-        await MessageApi.sendGroupMsg(group_id, message)
 
     async def SendPrivateMessage(self, qq: int, message: MessageChain):
         """
@@ -100,28 +89,6 @@ class GroupCommands(Commands[GroupMessageEvent]):
         self.Trigger.update()
         return await MessageApi.getRecordInfo(file, out_format)
 
-    async def setMsgEmojiLike(self, message_id: int, emoji_id: str):
-        """
-        表情回应消息（只支持群聊消息）
-        Parameters:
-            message_id (int): 消息ID
-            emoji_id (str): 表情ID
-
-        参考https://bot.q.qq.com/wiki/develop/api-v2/openapi/emoji/model.html#EmojiType
-        """
-        self.Trigger.update()
-        return await MessageApi.setMsgEmojiLike(message_id, emoji_id)
-
-    async def unsetMsgEmojiLike(self, message_id: int, emoji_id: str):
-        """
-        取消消息表情回应（只支持群聊消息）
-        Parameters:
-            message_id (int): 消息ID
-            emoji_id (str): 表情ID
-        """
-        self.Trigger.update()
-        return await MessageApi.unsetMsgEmojiLike(message_id, emoji_id)
-
     async def getFriendMsgHistory(self, user_id: int):
         """
         获取好友历史消息记录
@@ -132,19 +99,6 @@ class GroupCommands(Commands[GroupMessageEvent]):
         """
         self.Trigger.update()
         return await MessageApi.getFriendMsgHistory(user_id)
-
-    async def getGroupMsgHistory(
-        self, group_id: int, message_seq: int | None = None, count: int = 20
-    ):
-        """
-        获取群历史消息
-        Parameters:
-            group_id (int): 群号
-            message_seq (int): 消息序号（可选）
-            count (int): 获取消息数量，默认20条
-        """
-        self.Trigger.update()
-        return await MessageApi.getGroupMsgHistory(group_id, message_seq, count)
 
     async def getForwardMsg(self, message_id: int):
         """
@@ -164,25 +118,17 @@ class GroupCommands(Commands[GroupMessageEvent]):
         self.Trigger.update()
         return await MessageApi.markMsgAsRead(message_id)
 
-    async def Reply(self, message: MessageChain | str):
+    async def Reply(self, message: MessageChain):
         """
         快捷回复
         """
-        if isinstance(message, str):
-            message = MessageChain().add(Text(message))
-
-        if self.messageData.Group:
-
-            await self.SendGroupMessage(self.messageData.Group, message)
-
-        else:
-            await self.SendPrivateMessage(self.messageData.QQ, message)
+        await self.SendPrivateMessage(self.messageData.QQ, message)
 
 
-class GroupMessageContext(MessageContext[GroupMessageEvent]):
-    Event: GroupMessageEvent
-    Command: Commands[GroupMessageEvent]
+class GroupMessageContext(MessageContext[PrivateMessageEvent]):
+    Event: PrivateMessageEvent
+    Command: Commands[PrivateMessageEvent]
 
-    def __init__(self, event: GroupMessageEvent):
-        self.Command = GroupCommands(event)  # 显式初始化 Command 属性
+    def __init__(self, event: PrivateMessageEvent):
+        self.Command = PrivateCommands(event)  # 显式初始化 Command 属性
         self.Event = event

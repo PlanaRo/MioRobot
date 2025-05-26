@@ -9,9 +9,10 @@ async def main():
     httpStart = asyncio.create_task(coreServer.httpStart())
     # 启动核心服务
     Start = asyncio.create_task(coreServer.start())
-    await asyncio.gather(Start, httpStart)
+
+    await asyncio.gather(Start, httpStart, return_exceptions=False)
 
 
 if __name__ == "__main__":
     Log.info("正在启动澪...")
-    asyncio.run(main())
+    asyncio.run(coreServer.start())

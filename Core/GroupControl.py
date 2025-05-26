@@ -1,4 +1,4 @@
-from Models.Api.RobotInfo import RobotInfo
+from Models.Api.GroupApi import GroupApi
 import json
 import asyncio
 from Utils.Logs import Log
@@ -41,7 +41,7 @@ class GroupControl:
         :return: 群数据
         """
         # 通过接口获取群数据
-        rowGroupData = await RobotInfo.getGroupList()
+        rowGroupData = await GroupApi.getGroupList()
         if rowGroupData is not None:
             return rowGroupData  # type: ignore
         else:
@@ -70,16 +70,16 @@ class GroupControl:
             json.dump(groupDataList, f, ensure_ascii=False, indent=4)
 
     @staticmethod
-    def isEnable(groupId: str) -> bool:
+    def isEnable(groupId: int) -> bool:
         """
         判断群是否启用
         :param group_id: 群号
         :return: 是否启用
         """
-        return GroupControl.groupList.get(groupId, {}).get("enable", False)
+        return GroupControl.groupList.get(str(groupId), {}).get("enable", False)
 
     @staticmethod
-    def isEnablePlugin(groupId: str, pluginName: str) -> bool:
+    def isEnablePlugin(groupId: int, pluginName: str) -> bool:
         """
         判断群是否启用插件
         :param group_id: 群号
@@ -87,7 +87,7 @@ class GroupControl:
         :return: 是否启用
         """
         return (
-            GroupControl.groupList.get(groupId, {})
+            GroupControl.groupList.get(str(groupId), {})
             .get("plugins", {})
             .get(pluginName, False)
         )

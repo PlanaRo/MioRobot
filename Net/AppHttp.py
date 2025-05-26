@@ -67,24 +67,6 @@ async def updateGroupList(request: Request):
     return {"message": "OK"}
 
 
-# def run_api():
-#     from Models.Api.modelModApi import openapi_qwen2
-
-#     uvicorn.run(
-#         "Models.Api.modelModApi.openapi_qwen2:app", host="0.0.0.0", port=6006, workers=1
-#     )
-
-
-# @appHttp.get("/modelModApi")
-# async def modelModApi():
-#     """
-#     运行模型
-#     """
-#     thread = threading.Thread(target=run_api)
-#     thread.start()
-#     return {"message": "OK"}
-
-
 @appHttp.get("/get_cpu_usage")
 async def getCpuUsage():
     """

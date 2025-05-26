@@ -2,6 +2,7 @@ from Models.Event.BaseEvent import BaseEvent
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
+from Models.MessageChain.MessageChain import MessageChain
 from Utils.Trigger import MessageTrigger
 
 T = TypeVar("T", bound=BaseEvent, covariant=True)
@@ -15,7 +16,7 @@ class Commands(ABC, Generic[T]):
         self.messageData = event
 
     @abstractmethod
-    async def Reply(self, message):
+    async def Reply(self, message: MessageChain | str):
         pass
 
 

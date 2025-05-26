@@ -10,6 +10,7 @@ Cacha/
 # Distribution / packaging
 .Python
 build/
+Cache/
 develop-eggs/
 dist/
 downloads/
@@ -51,6 +52,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+/test
 
 # Translations
 *.mo

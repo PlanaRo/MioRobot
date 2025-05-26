@@ -5,11 +5,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -19,11 +19,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -33,11 +33,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -47,11 +47,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -61,11 +61,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -73,27 +73,27 @@
         "group_id": 676832751,
         "group_name": "澪酱的趣味书屋",
         "status": {
-            "enable": false,
+            "enable": true,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
     {
         "group_id": 692161978,
-        "group_name": "故事会 唉柠檬",
+        "group_name": "故事会_宝宝幼稚园",
         "status": {
             "enable": true,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -103,25 +103,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
-            }
-        }
-    },
-    {
-        "group_id": 935517337,
-        "group_name": "王德參上、王德、浮华心弦、澪",
-        "status": {
-            "enable": false,
-            "plugins": {
-                "菜单": true,
+                "天气预报": true,
                 "插件热重载": true,
-                "图片超分": true,
-                "test": true,
-                "天气预报": true
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     },
@@ -131,11 +117,11 @@
         "status": {
             "enable": false,
             "plugins": {
-                "菜单": true,
-                "插件热重载": true,
-                "图片超分": true,
                 "test": true,
-                "天气预报": true
+                "天气预报": true,
+                "插件热重载": true,
+                "高考倒计时": true,
+                "菜单": true
             }
         }
     }

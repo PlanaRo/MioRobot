@@ -1,16 +1,14 @@
-import os
 from typing import Any, Type
 from Models.Event.BaseEvent import BaseEvent
 from Models.Event.GroupMessageEvent import GroupMessageEvent
 from Models.Context.MessageContext import MessageContext
-from Plugin import Plugin, PluginSetting
-import Core.Plugin as BasePlugin
-from Utils.LoadModel import findSubclasses
+from Core.Plugin import Plugin, PluginSetting
+from Utils.LoadModel import findPluginsInDirectory
 from Utils.Logs import Log
+from Core.GroupControl import GroupControl
 import traceback
 import sys
 import time
-from Core.GroupControl import GroupControl
 
 
 class PluginLoader:
@@ -89,26 +87,38 @@ class PluginLoader:
         # 统计加载插件的时间
         startTime = time.time()
         # 扫描获取所有插件类
-        subclasses: list[Type[Plugin]] = findSubclasses("Plugins", Plugin, reload)
 
-        for subclass in subclasses:
-            try:
-                # 实例化插件
-                pluginInstance = subclass()
-                # 添加插件到字典中
-                self.pluginInstanceList[pluginInstance] = (
-                    pluginInstance.setting.priority
-                )
-                self.pluginNumber += 1
+        try:
+            # subclasses: list[Type[Plugin]] = findSubclasses("Plugins", Plugin, reload)
+            subclasses: list[Type[Plugin]] = findPluginsInDirectory(
+                "Plugins", Plugin, reload
+            )
 
-            except Exception as e:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                tb = traceback.extract_tb(exc_traceback)
-                Log.pluginError(
-                    subclass.__name__,
-                    f"加载插件 {subclass.__name__} 失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
-                )
+            for subclass in subclasses:
+                try:
+                    # 实例化插件
+                    pluginInstance = subclass()
+                    # 添加插件到字典中
+                    self.pluginInstanceList[pluginInstance] = (
+                        pluginInstance.setting.priority
+                    )
+                    self.pluginNumber += 1
 
+                except Exception as e:
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    tb = traceback.extract_tb(exc_traceback)
+                    Log.pluginError(
+                        subclass.__name__,
+                        f"加载插件 {subclass.__name__} 失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
+                    )
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = traceback.extract_tb(exc_traceback)
+            Log.pluginError(
+                "PluginLoader",
+                f"加载插件失败。\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}",
+            )
+            exit()
         # 将插件按照优先级排序
         self.pluginInstanceList = dict(
             sorted(

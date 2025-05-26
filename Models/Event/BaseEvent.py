@@ -9,7 +9,7 @@ class BaseEvent(ABC):
     """
 
     # 机器人QQ号
-    Robot: str
+    Robot: int
     # 事件类型
     Post_Type: EventType
     # 消息事件戳

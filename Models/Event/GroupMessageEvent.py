@@ -16,19 +16,19 @@ class GroupMessageEvent(BaseEvent):
     # 消息子类型，为normal
     Sub_Type: str
     # QQ号
-    QQ: str
+    QQ: int
     # 等级
     Level: int
     # 发送者角色
-    Role: str
+    Role: int
     # 发送者头衔
     Title: str
     # robot的QQ号
-    Robot: str
+    Robot: int
     # 昵称
     Nickname: str
     # 群号
-    Group: str
+    Group: int
     # 群昵称Card
     GroupNickname: str
     # 群消息
@@ -52,13 +52,13 @@ class GroupMessageEvent(BaseEvent):
         self.Message_Type = data.get("message_type", "")
         self.Time = data.get("time", "")
         self.Sub_Type = data.get("sub_type", "")
-        self.QQ = str(data.get("user_id"))
+        self.QQ = data.get("user_id", 0)
         self.Level = sender.get("level")
         self.Title = sender.get("title")
         self.Role = sender.get("role")
-        self.Robot = str(data.get("self_id"))
+        self.Robot = data.get("self_id", 0)
         self.Nickname = sender.get("nickname")
-        self.Group = str(data.get("group_id"))
+        self.Group = data.get("group_id", 0)
         self.GroupNickname = sender.get("card")
         self.RowMessage = data.get("raw_message", "")
         self.Message_ID = data.get("message_id", None)
