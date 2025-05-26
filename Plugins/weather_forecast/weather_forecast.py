@@ -20,14 +20,12 @@ class WeatherForecast(Plugin):
             if weather.isTrueCity:
                 # 获取天气信息
                 image = weather.image()
-
-                if image == None:
+                if image is None:
                     await context.Command.Reply("天气信息获取失败，请稍后再试！")
                 else:
                     img_data = base64.b64encode(image).decode()
                     await context.Command.Reply(CQcode.img(f"base64://{img_data}"))
             else:
-
                 await context.Command.Reply(
                     "阁下输入的城市不存在，请换一个城市再试试！",
                 )
