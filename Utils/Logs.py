@@ -21,6 +21,13 @@ class Log:
         print(f"{colorama.Fore.GREEN}\n信息:{msg}")
 
     @staticmethod
+    def debug(msg: Any) -> None:
+        """
+        输出警告信息
+        """
+        print(f"{colorama.Fore.BLUE}\n调试:{msg}")
+
+    @staticmethod
     def warning(msg: Any) -> None:
         """
         输出警告信息
