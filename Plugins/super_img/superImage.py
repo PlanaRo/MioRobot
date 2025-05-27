@@ -1,9 +1,10 @@
 import base64
 from functools import singledispatchmethod
 import aiohttp
-from DataType.CQcode import CQcode
 from Models.Context.GroupMessageContext import GroupMessageContext
 from Core.Plugin import Plugin
+from Models.MessageChain.Message import Image
+from Models.MessageChain.MessageChain import MessageChain
 from Plugins.super_img.super import do_super_resolution
 
 
@@ -37,7 +38,9 @@ class SuperImagePlugin(Plugin):
 
                         imgData = base64.b64encode(imgData.getvalue()).decode()
 
-                        await context.Command.Reply(CQcode.img(f"base64://{imgData}"))
+                        messageChain = MessageChain().add(Image(f"base64://{imgData}"))
+
+                        await context.Command.Reply(messageChain)
                 else:
                     await context.Command.Reply("图片url存在问题，请稍后重试")
             else:
@@ -58,7 +61,9 @@ class SuperImagePlugin(Plugin):
                     else:
                         imgData = base64.b64encode(imgData.getvalue()).decode()
 
-                        await context.Command.Reply(CQcode.img(f"base64://{imgData}"))
+                        messageChain = MessageChain().add(Image(f"base64://{imgData}"))
+
+                        await context.Command.Reply(messageChain)
                 else:
                     await context.Command.Reply("图片url存在问题，请稍后重试")
 

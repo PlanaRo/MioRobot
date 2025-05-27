@@ -18,7 +18,7 @@ class CoreServer:
     """
     核心服务用于启动
     ws连接
-    appHttp连接
+    apiHttp连接
     """
 
     # 插件加载器实例
@@ -61,31 +61,57 @@ class CoreServer:
         """
         开启http管理服务
         """
-        try:
-            Log.info("正在开启api服务......")
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(
-                None,
-                lambda: uvicorn.run(
-                    # "Net.AppHttp:appHttp",
+        retry_count = 0
+        MAX_RETRIES = 3
+
+        while retry_count < MAX_RETRIES:
+            try:
+                Log.info("正在开启 API 服务......")
+
+                # 创建 uvicorn 配置
+                config = uvicorn.Config(
                     appHttp,
                     host="0.0.0.0",
                     port=int(self.config.uvicornPort),
                     reload=False,
-                ),
-            )
+                )
 
-        except BaseException as e:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            tb = traceback.extract_tb(exc_traceback)
-            # 查看详细错误信息
-            Log.error(
-                f"ws连接错误\n文件路径: {tb[-1].filename} \n行号：{tb[-1].lineno} \n错误源码:{traceback.format_exc()}\n错误信息为: {e}"
-            )
-            Log.error("http管理开启失败，请检查配置")
-            Log.info("将在10秒后尝试重新连接")
-            time.sleep(10)
-            await self.httpStart()
+                # 创建服务器实例
+                server = uvicorn.Server(config)
+
+                # 在后台任务中运行服务器
+                self._http_task = asyncio.create_task(server.serve())
+                await self._http_task
+
+            except asyncio.CancelledError:
+                Log.info("HTTP 服务被取消")
+                break
+            except KeyboardInterrupt:
+                Log.info("HTTP 服务接收到键盘中断")
+                break
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                tb = traceback.extract_tb(exc_traceback)
+                Log.error(
+                    f"HTTP 服务启动失败\n文件路径: {tb[-1].filename} \n行号: {tb[-1].lineno}\n错误信息: {e}"
+                )
+                retry_count += 1
+
+                if retry_count < MAX_RETRIES:
+                    Log.info(
+                        f"将在10秒后尝试重新连接 (尝试次数: {retry_count}/{MAX_RETRIES})"
+                    )
+                    # 使用可中断的等待
+                    try:
+                        await asyncio.wait_for(asyncio.sleep(10), timeout=None)
+                    except KeyboardInterrupt:
+                        break
+                else:
+                    Log.error("达到最大重试次数，放弃启动 HTTP 服务")
+                    break
+
+        if retry_count >= MAX_RETRIES:
+            raise Exception("HTTP 服务启动失败")
 
     async def receive(self):
         """

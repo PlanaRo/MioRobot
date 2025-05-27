@@ -5,6 +5,7 @@ import importlib.util
 import inspect
 from types import ModuleType
 from typing import List, Type, Dict
+from Utils.Logs import Log
 
 # 缓存已导入的模块
 imported_modules: Dict[str, ModuleType] = {}
@@ -67,11 +68,11 @@ def findPluginsInDirectory(
     import glob
 
     if not os.path.exists(directory):
-        print(f"目录不存在: {directory}")
+        Log.error(f"目录不存在: {directory}")
         return []
 
     if not os.path.isdir(directory):
-        print(f"路径不是目录: {directory}")
+        Log.error(f"路径不是目录: {directory}")
         return []
 
     plugins = []
@@ -100,7 +101,7 @@ def findPluginsInDirectory(
                     module = loadModuleFromFile(file_path, module_name)
                     imported_modules[file_path] = module
                 except Exception as e:
-                    print(f"重新加载模块 {file_path} 失败: {e}")
+                    Log.error(f"重新加载模块 {file_path} 失败: {e}")
                     continue
             elif file_path not in imported_modules:
                 # 首次加载模块
@@ -108,7 +109,7 @@ def findPluginsInDirectory(
                     module = loadModuleFromFile(file_path, module_name)
                     imported_modules[file_path] = module
                 except Exception as e:
-                    print(f"加载模块 {file_path} 失败: {e}")
+                    Log.error(f"加载模块 {file_path} 失败: {e}")
                     continue
             else:
                 # 使用缓存的模块
@@ -123,10 +124,10 @@ def findPluginsInDirectory(
                     and cls.__module__ == module_name
                 ):  # 确保类定义在当前模块中
                     plugins.append(cls)
-                    print(f"找到插件: {cls.__name__} 在 {file_path}")
+                    Log.info(f"找到插件: {cls.__name__} 在 {file_path}")
 
         except Exception as e:
-            print(f"处理文件 {file_path} 时出错: {e}")
+            Log.error(f"处理文件 {file_path} 时出错: {e}")
             continue
 
     return plugins
@@ -150,11 +151,11 @@ def findPluginsFromFiles(
 
     for file_path in file_paths:
         if not os.path.exists(file_path):
-            print(f"文件不存在: {file_path}")
+            Log.info(f"文件不存在: {file_path}")
             continue
 
         if not file_path.endswith(".py"):
-            print(f"跳过非Python文件: {file_path}")
+            Log.info(f"跳过非Python文件: {file_path}")
             continue
 
         try:
@@ -179,10 +180,10 @@ def findPluginsFromFiles(
                     and cls.__module__ == module_name
                 ):
                     plugins.append(cls)
-                    print(f"找到插件: {cls.__name__} 在 {file_path}")
+                    Log.info(f"找到插件: {cls.__name__} 在 {file_path}")
 
         except Exception as e:
-            print(f"处理文件 {file_path} 时出错: {e}")
+            Log.error(f"处理文件 {file_path} 时出错: {e}")
             continue
 
     return plugins

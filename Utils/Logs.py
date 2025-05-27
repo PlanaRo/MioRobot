@@ -32,7 +32,6 @@ class Log:
         """
         输出警告信息
         """
-        # print(colorama.Fore.YELLOW + "\n警告:", msg)
         print(f"{colorama.Fore.YELLOW}\n警告:{msg}")
 
     @staticmethod

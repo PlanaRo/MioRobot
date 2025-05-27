@@ -14,7 +14,6 @@
 
 <br>
 
-
 <div align="center">
 <img src="src/md/assets/text.png" decoding="async" loading="lazy" width="1080" height="">
 <table style="display: table; border-collapse: collapse; margin: auto; background-color:transparent;">
@@ -36,13 +35,21 @@
 
 2.使用抽象类规范插件编写，助力编写简单高效的插件
 
-3.完善的相关服务支持，框架支持使用app进行管理
+3.完善的相关服务支持，框架支持使用 app 进行管理
 
 ## 环境
 
-- python=3.10
+- python=3.12
 
 ## 用法
+
+## 自动安装脚本
+
+```shell
+./start.bat
+```
+
+## 手动安装
 
 (可选)建议使用 conda 创建虚拟环境运行
 
@@ -86,12 +93,12 @@ Plugins	插件文件夹
 Models	必要模块
    ├─Api	所有消息发送api模块
    │   └─MessageApi.py	消息发送的模块
-   │ 
+   │
    ├─Context	构建消息上下文
    │ 	├─GroupMessageContext.py	群消息上下文
    │   	├─MessageContext.py 	上下文基类
    │	└─MessageContextBuild	将消息构建为对应上下文
-   │ 
+   │
    └─Event	所有事件处理的模块
       ├─EventContral.py		事件处理中心
       ├─GroupMessageEvent.py 	处理群聊事件

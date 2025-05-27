@@ -1,11 +1,9 @@
-import random
 from torchvision.transforms import functional
 import sys
 
 # 兼容库中旧代码使用
 sys.modules["torchvision.transforms.functional_tensor"] = functional
 
-import asyncio
 import numpy as np
 from io import BytesIO
 from pathlib import Path
